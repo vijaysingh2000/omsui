@@ -1,0 +1,152 @@
+<div class="oms-shell">
+
+  <!-- Sidebar -->
+  <aside class="oms-sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">&#x2695;</span>
+      <span class="brand-text">OMS</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <span class="link-icon">&#x1F4CA;</span> Dashboard
+      </a>
+      <a class="sidebar-link" routerLink="/patients" routerLinkActive="active">
+        <span class="link-icon">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</span> Patients
+      </a>
+      <a class="sidebar-link" routerLink="/call-list" routerLinkActive="active">
+        <span class="link-icon">&#x1F4DE;</span> Call List
+      </a>
+      <a class="sidebar-link" routerLink="/list" routerLinkActive="active">
+        <span class="link-icon">&#x1F4CB;</span> List
+      </a>
+      <a class="sidebar-link" routerLink="/batch-payment" routerLinkActive="active">
+        <span class="link-icon">&#x1F4B3;</span> Batch Payment
+      </a>
+      <a class="sidebar-link" routerLink="/invoices" routerLinkActive="active">
+        <span class="link-icon">&#x1F9FE;</span> Invoices
+      </a>
+      <a class="sidebar-link" routerLink="/users" routerLinkActive="active">
+        <span class="link-icon">&#x1F465;</span> Users
+      </a>
+      <a class="sidebar-link" routerLink="/reports" routerLinkActive="active">
+        <span class="link-icon">&#x1F4C8;</span> Reports
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="sidebar-link" routerLink="/my-profile" routerLinkActive="active">
+        <span class="link-icon">&#x1F464;</span> My Profile
+      </a>
+      <button class="sidebar-link sidebar-logout" (click)="logout()">
+        <span class="link-icon">&#x1F6AA;</span> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="oms-main">
+
+    @if (loading) {
+      <div class="profile-loading">
+        <span class="spinner-border text-primary" role="status"></span>
+        <span class="ms-2 text-muted">Loading profile…</span>
+      </div>
+    } @else {
+      <div class="profile-card-wrap">
+        <div class="profile-card">
+
+          <!-- Card Title Bar -->
+          <div class="profile-titlebar">
+            <span class="profile-title-icon">&#x1F464;</span>
+            <span>User Details [{{ firstName }}, {{ lastName }}]</span>
+          </div>
+
+          <!-- Alerts -->
+          @if (errorMsg) {
+            <div class="alert alert-danger alert-dismissible mx-4 mt-3 mb-0 py-2 small" role="alert">
+              {{ errorMsg }}
+              <button type="button" class="btn-close btn-close-sm" (click)="errorMsg=null"></button>
+            </div>
+          }
+          @if (successMsg) {
+            <div class="alert alert-success alert-dismissible mx-4 mt-3 mb-0 py-2 small" role="alert">
+              {{ successMsg }}
+              <button type="button" class="btn-close btn-close-sm" (click)="successMsg=null"></button>
+            </div>
+          }
+
+          <!-- Form -->
+          <form (ngSubmit)="save()" #profileForm="ngForm" class="profile-form" novalidate>
+            <div class="profile-fields">
+
+              <!-- Left Column -->
+              <div class="profile-col">
+                <div class="profile-field">
+                  <label for="loginId" class="profile-label">Login Id</label>
+                  <input id="loginId" type="text" class="form-control form-control-sm profile-input"
+                         name="loginId" [(ngModel)]="loginId" required />
+                </div>
+
+                <div class="profile-field">
+                  <label for="password" class="profile-label">Password</label>
+                  <input id="password" type="password" class="form-control form-control-sm profile-input"
+                         name="password" [(ngModel)]="password"
+                         autocomplete="new-password" />
+                </div>
+
+                <div class="profile-field">
+                  <label for="confirmPassword" class="profile-label">Confirm Password</label>
+                  <input id="confirmPassword" type="password"
+                         class="form-control form-control-sm profile-input"
+                         [class.is-invalid]="confirmPassword && passwordMismatch"
+                         name="confirmPassword" [(ngModel)]="confirmPassword"
+                         autocomplete="new-password" />
+                  @if (confirmPassword && passwordMismatch) {
+                    <div class="invalid-feedback">Passwords do not match.</div>
+                  }
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="profile-col">
+                <div class="profile-field">
+                  <label for="firstName" class="profile-label">First name</label>
+                  <input id="firstName" type="text" class="form-control form-control-sm profile-input"
+                         name="firstName" [(ngModel)]="firstName" required />
+                </div>
+
+                <div class="profile-field">
+                  <label for="lastName" class="profile-label">Last name</label>
+                  <input id="lastName" type="text" class="form-control form-control-sm profile-input"
+                         name="lastName" [(ngModel)]="lastName" required />
+                </div>
+
+                <div class="profile-field">
+                  <label for="email" class="profile-label">Email</label>
+                  <input id="email" type="email" class="form-control form-control-sm profile-input"
+                         name="email" [(ngModel)]="email" required email />
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div class="profile-actions">
+              <button type="submit" class="btn btn-sm profile-btn-save"
+                      [disabled]="saving || profileForm.invalid || passwordMismatch">
+                @if (saving) {
+                  <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                }
+                Save
+              </button>
+              <button type="button" class="btn btn-sm profile-btn-close" (click)="close()">
+                Close
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    }
+
+  </main>
+</div>

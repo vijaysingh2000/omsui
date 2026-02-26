@@ -1,152 +1,197 @@
-<div class="container-fluid py-4">
+﻿<div class="oms-shell">
 
-  <!-- Filter Card -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-secondary text-white fw-semibold d-flex justify-content-between align-items-center">
-      <span>Reports</span>
-      <a routerLink="/dashboard" class="btn btn-sm btn-outline-light">← Back to Dashboard</a>
+  <!-- Sidebar -->
+  <aside class="oms-sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">&#x2695;</span>
+      <span class="brand-text">OMS</span>
     </div>
-    <div class="card-body">
-      <form (ngSubmit)="submit()" #filterForm="ngForm">
-        <div class="row g-3 align-items-end">
-
-          <!-- Report Selector -->
-          <div class="col-12 col-md-5">
-            <label for="reportSelect" class="form-label fw-semibold">Report</label>
-            <select id="reportSelect" class="form-select" name="reportSelect" [(ngModel)]="selectedReportKey" [disabled]="reportsLoading">
-              @if (reportsLoading) {
-                <option value="">Loading reports...</option>
-              } @else {
-                @for (r of dropdownItems; track r.key) {
-                  <option [ngValue]="r.key">{{ r.label }}</option>
-                }
-              }
-            </select>
-          </div>
-
-          <!-- Start Date -->
-          <div class="col-12 col-md-2">
-            <label for="startDate" class="form-label fw-semibold">Start Date</label>
-            <input
-              id="startDate"
-              type="date"
-              class="form-control"
-              name="startDate"
-              [(ngModel)]="startDate"
-              required />
-          </div>
-
-          <!-- End Date -->
-          <div class="col-12 col-md-2">
-            <label for="endDate" class="form-label fw-semibold">End Date</label>
-            <input
-              id="endDate"
-              type="date"
-              class="form-control"
-              name="endDate"
-              [(ngModel)]="endDate"
-              required />
-          </div>
-
-          <!-- Submit -->
-          <div class="col-12 col-md-3 d-grid">
-            <button type="submit" class="btn btn-secondary" [disabled]="loading || filterForm.invalid">
-              @if (loading) {
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Loading...
-              } @else {
-                Run Report
-              }
-            </button>
-          </div>
-
-        </div>
-      </form>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <span class="link-icon">&#x1F4CA;</span> Dashboard
+      </a>
+      <a class="sidebar-link" routerLink="/patients" routerLinkActive="active">
+        <span class="link-icon">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</span> Patients
+      </a>
+      <a class="sidebar-link" routerLink="/call-list" routerLinkActive="active">
+        <span class="link-icon">&#x1F4DE;</span> Call List
+      </a>
+      <a class="sidebar-link" routerLink="/list" routerLinkActive="active">
+        <span class="link-icon">&#x1F4CB;</span> List
+      </a>
+      <a class="sidebar-link" routerLink="/batch-payment" routerLinkActive="active">
+        <span class="link-icon">&#x1F4B3;</span> Batch Payment
+      </a>
+      <a class="sidebar-link" routerLink="/invoices" routerLinkActive="active">
+        <span class="link-icon">&#x1F9FE;</span> Invoices
+      </a>
+      <a class="sidebar-link" routerLink="/users" routerLinkActive="active">
+        <span class="link-icon">&#x1F465;</span> Users
+      </a>
+      <a class="sidebar-link" routerLink="/reports" routerLinkActive="active">
+        <span class="link-icon">&#x1F4C8;</span> Reports
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="sidebar-link" routerLink="/my-profile" routerLinkActive="active">
+        <span class="link-icon">&#x1F464;</span> My Profile
+      </a>
+      <button class="sidebar-link sidebar-logout" (click)="logout()">
+        <span class="link-icon">&#x1F6AA;</span> Logout
+      </button>
     </div>
-  </div>
+  </aside>
 
-  <!-- Error Alert -->
-  @if (errorMsg) {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      {{ errorMsg }}
-      <button type="button" class="btn-close" (click)="errorMsg = null" aria-label="Close"></button>
-    </div>
-  }
+  <!-- Main Content -->
+  <main class="oms-main">
 
-  <!-- Results -->
-  @if (submitted && !loading) {
-    <div class="card shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-semibold">{{ displayedReport?.label }}</span>
-        <span class="badge bg-secondary">{{ results.length }} record(s)</span>
+    <!-- Filter Card -->
+    <div class="oms-card mb-4">
+      <div class="oms-card-header">
+        <span>&#x1F50D; Run a Report</span>
       </div>
+      <div class="oms-card-body">
+        <form (ngSubmit)="submit()" #filterForm="ngForm">
+          <div class="row g-3 align-items-end">
 
-      @if (results.length === 0) {
-        <div class="card-body text-center text-muted py-5">
-          No records found for the selected criteria.
-        </div>
-      } @else {
-        <div class="report-table-wrapper">
-          <table class="table table-hover table-striped table-bordered mb-0 align-middle small">
-            <thead class="table-dark report-sticky-head">
-              <tr>
-                <th>#</th>
-                @for (col of displayedReport!.columns; track col.field) {
-                  <th [class.text-end]="col.type === 'currency' || col.type === 'number'">
-                    {{ col.header }}
-                  </th>
+            <div class="col-12 col-md-5">
+              <label for="reportSelect" class="form-label fw-semibold small text-uppercase text-muted">Report</label>
+              <select id="reportSelect" class="form-select form-select-sm" name="reportSelect"
+                      [(ngModel)]="selectedReportKey" [disabled]="reportsLoading">
+                @if (reportsLoading) {
+                  <option value="">Loading reports...</option>
+                } @else {
+                  @for (r of dropdownItems; track r.key) {
+                    <option [ngValue]="r.key">{{ r.label }}</option>
+                  }
                 }
-              </tr>
-            </thead>
+              </select>
+            </div>
 
-            <tbody>
-              @for (row of results; track $index; let i = $index) {
-                <tr>
-                  <td class="text-muted">{{ i + 1 }}</td>
-                  @for (col of displayedReport!.columns; track col.field) {
-                    @if (col.type === 'badge') {
-                      <td>
-                        @if (row[col.field]) {
-                          <span class="badge text-bg-info">{{ row[col.field] }}</span>
-                        } @else {
-                          <span class="text-muted">—</span>
-                        }
-                      </td>
-                    } @else if (col.type === 'currency') {
-                      <td class="text-end"
-                          [class.text-danger]="col.field === 'totalBalance' && (row[col.field] ?? 0) > 0"
-                          [class.text-success]="col.field === 'totalBalance' && (row[col.field] ?? 0) <= 0">
-                        {{ formatCell(row[col.field], 'currency') }}
-                      </td>
-                    } @else if (col.type === 'number') {
-                      <td class="text-end">{{ formatCell(row[col.field], 'number') }}</td>
-                    } @else {
-                      <td>{{ formatCell(row[col.field], col.type) }}</td>
-                    }
-                  }
-                </tr>
-              }
-            </tbody>
+            <div class="col-12 col-md-2">
+              <label for="startDate" class="form-label fw-semibold small text-uppercase text-muted">Start Date</label>
+              <input id="startDate" type="date" class="form-control form-control-sm"
+                     name="startDate" [(ngModel)]="startDate" required />
+            </div>
 
-            <!-- Totals footer — only shown when there are currency columns -->
-            @if (currencyFields().length > 0) {
-              <tfoot class="table-dark fw-bold">
-                <tr>
-                  <td></td>
-                  @for (col of displayedReport!.columns; track col.field) {
-                    @if (col.type === 'currency') {
-                      <td class="text-end">{{ columnTotal(col.field) | currency }}</td>
-                    } @else {
-                      <td></td>
-                    }
-                  }
-                </tr>
-              </tfoot>
-            }
-          </table>
-        </div>
-      }
+            <div class="col-12 col-md-2">
+              <label for="endDate" class="form-label fw-semibold small text-uppercase text-muted">End Date</label>
+              <input id="endDate" type="date" class="form-control form-control-sm"
+                     name="endDate" [(ngModel)]="endDate" required />
+            </div>
+
+            <div class="col-12 col-md-auto d-flex gap-2 align-items-end">
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading || filterForm.invalid">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Loading...
+                } @else {
+                  &#x1F4C8; Run Report
+                }
+              </button>
+              <button type="button" class="btn btn-success btn-sm"
+                      (click)="exportToExcel()"
+                      [disabled]="!sortedResults.length || loading">
+                &#x1F4E5; Export to Excel
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
     </div>
-  }
 
+    <!-- Error Alert -->
+    @if (errorMsg) {
+      <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+        <strong>Error:</strong> {{ errorMsg }}
+        <button type="button" class="btn-close" (click)="errorMsg = null" aria-label="Close"></button>
+      </div>
+    }
+
+    <!-- Results -->
+    @if (submitted && !loading) {
+      <div class="oms-card">
+        <div class="oms-card-header">
+          <span>&#x1F4CB; {{ displayedReport?.label }}</span>
+          <span class="badge rounded-pill bg-white text-primary border border-primary px-3">{{ results.length }} record(s)</span>
+        </div>
+
+        @if (results.length === 0) {
+          <div class="oms-card-body text-center py-5">
+            <div class="display-4 mb-3">&#x1F50E;</div>
+            <h5 class="text-muted">No records found</h5>
+            <p class="text-muted small">Try adjusting your filters and run the report again.</p>
+          </div>
+        } @else {
+          <div class="report-table-wrapper">
+            <table class="table oms-table mb-0 align-middle small">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  @for (col of displayedReport!.columns; track col.field) {
+                    <th class="th-sortable" (click)="sortBy(col.field)"
+                        [class.text-end]="col.type === 'currency' || col.type === 'number'"
+                        [class.th-sorted]="sortField === col.field">
+                      {{ col.header }}
+                      <span class="sort-icon">
+                        @if (sortField === col.field) {
+                          {{ sortDir === 'asc' ? '▲' : '▼' }}
+                        } @else {
+                          ⇅
+                        }
+                      </span>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of sortedResults; track $index; let i = $index) {
+                  <tr>
+                    <td class="text-muted">{{ i + 1 }}</td>
+                    @for (col of displayedReport!.columns; track col.field) {
+                      @if (col.type === 'badge') {
+                        <td>
+                          @if (row[col.field]) {
+                            <span class="badge text-bg-info rounded-pill">{{ row[col.field] }}</span>
+                          } @else {
+                            <span class="text-muted">&mdash;</span>
+                          }
+                        </td>
+                      } @else if (col.type === 'currency') {
+                        <td class="text-end fw-semibold"
+                            [class.text-danger]="col.field === 'totalBalance' && (row[col.field] ?? 0) > 0"
+                            [class.text-success]="col.field === 'totalBalance' && (row[col.field] ?? 0) <= 0">
+                          {{ formatCell(row[col.field], 'currency') }}
+                        </td>
+                      } @else if (col.type === 'number') {
+                        <td class="text-end">{{ formatCell(row[col.field], 'number') }}</td>
+                      } @else {
+                        <td>{{ formatCell(row[col.field], col.type) }}</td>
+                      }
+                    }
+                  </tr>
+                }
+              </tbody>
+              @if (currencyFields().length > 0) {
+                <tfoot>
+                  <tr class="table-totals-row">
+                    <td class="text-end fw-bold text-muted" [attr.colspan]="1">Totals</td>
+                    @for (col of displayedReport!.columns; track col.field) {
+                      @if (col.type === 'currency') {
+                        <td class="text-end fw-bold">{{ columnTotal(col.field) | currency }}</td>
+                      } @else {
+                        <td></td>
+                      }
+                    }
+                  </tr>
+                </tfoot>
+              }
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+  </main>
 </div>

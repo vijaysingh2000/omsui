@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { ReportService } from '../services/report.service';
 import { ClientService } from '../services/client.service';
@@ -11,7 +11,7 @@ import { E_DashboardView } from '../services/enum';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, FormsModule, CommonModule],
+  imports: [RouterLink, RouterLinkActive, FormsModule, CommonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -116,23 +116,49 @@ export class DashboardComponent implements OnInit {
   errorMsg: string | null = null;
   submitted = false;
 
+  sortField: string | null = null;
+  sortDir: 'asc' | 'desc' = 'asc';
+
+  sortBy(field: string): void {
+    if (this.sortField === field) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDir = 'asc';
+    }
+  }
+
+  get sortedResults(): OrderInProgress[] {
+    if (!this.sortField) return this.results;
+    const field = this.sortField as keyof OrderInProgress;
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    return [...this.results].sort((a, b) => {
+      const av = a[field] ?? '';
+      const bv = b[field] ?? '';
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+      return 0;
+    });
+  }
+
   constructor(
     private reportService: ReportService,
     private clientService: ClientService,
     private session: SessionService,
     private cdr: ChangeDetectorRef,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.clientsLoading = true;
     this.clientService.getAll()
-      .pipe(finalize(() => { this.clientsLoading = false; this.cdr.markForCheck(); }))
+      .pipe(finalize(() => { this.clientsLoading = false; this.cdr.detectChanges(); }))
       .subscribe({
         next: (data) => {
           this.clients = data ?? [];
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
-        error: () => {},
+        error: () => { this.cdr.detectChanges(); },
       });
     this.submit();
   }
@@ -142,18 +168,26 @@ export class DashboardComponent implements OnInit {
     this.errorMsg = null;
     this.submitted = true;
     this.results = [];
+    this.sortField = null;
+    this.sortDir = 'asc';
+    this.cdr.detectChanges();
     this.reportService.getOrdersInProgress(this.buildRequest())
-      .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
+      .pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))
       .subscribe({
         next: (data) => {
           this.results = data ?? [];
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.errorMsg = err?.message ?? 'An error occurred.';
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
       });
+  }
+
+  logout(): void {
+    this.session.clearSession();
+    this.router.navigate(['/login']);
   }
 
   get totalBalance(): number {

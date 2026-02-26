@@ -1,176 +1,226 @@
-<div class="container-fluid py-4">
+<div class="oms-shell">
 
-  <!-- Filter Card -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white fw-semibold d-flex justify-content-between align-items-center">
-      <span>Orders In Progress</span>
-      <a routerLink="/reports" class="btn btn-sm btn-outline-light">Reports →</a>
+  <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+  <aside class="oms-sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⚕</span>
+      <span class="brand-text">OMS</span>
     </div>
-    <div class="card-body">
-      <form (ngSubmit)="submit()" #filterForm="ngForm">
-        <div class="row g-3 align-items-end">
 
-          <!-- Client Selector -->
-          <div class="col-12 col-md-3">
-            <label for="clientSelect" class="form-label fw-semibold">Client</label>
-            <select id="clientSelect" class="form-select" name="clientSelect"
-                    [(ngModel)]="selectedClientId"
-                    [disabled]="clientsLoading">
-              <option [ngValue]="undefined">
-                @if (clientsLoading) { Loading... } @else { — All Clients — }
-              </option>
-              @for (c of clients; track c.id) {
-                <option [ngValue]="c.id">{{ c.name }}</option>
-              }
-            </select>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+        <span class="link-icon">📊</span> Dashboard
+      </a>
+      <a class="sidebar-link" routerLink="/patients" routerLinkActive="active">
+        <span class="link-icon">🧑‍⚕️</span> Patients
+      </a>
+      <a class="sidebar-link" routerLink="/call-list" routerLinkActive="active">
+        <span class="link-icon">📞</span> Call List
+      </a>
+      <a class="sidebar-link" routerLink="/list" routerLinkActive="active">
+        <span class="link-icon">📋</span> List
+      </a>
+      <a class="sidebar-link" routerLink="/batch-payment" routerLinkActive="active">
+        <span class="link-icon">💳</span> Batch Payment
+      </a>
+      <a class="sidebar-link" routerLink="/invoices" routerLinkActive="active">
+        <span class="link-icon">🧾</span> Invoices
+      </a>
+      <a class="sidebar-link" routerLink="/users" routerLinkActive="active">
+        <span class="link-icon">👥</span> Users
+      </a>
+      <a class="sidebar-link" routerLink="/reports" routerLinkActive="active">
+        <span class="link-icon">📈</span> Reports
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="sidebar-link" routerLink="/my-profile" routerLinkActive="active">
+        <span class="link-icon">👤</span> My Profile
+      </a>      <button class="sidebar-link sidebar-logout" (click)="logout()">
+        <span class="link-icon">&#x1F6AA;</span> Logout
+      </button>    </div>
+  </aside>
+
+  <!-- ── Main Content ──────────────────────────────────────────────── -->
+  <main class="oms-main">
+
+    <!-- KPI Cards -->
+    @if (submitted && !loading && results.length > 0) {
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-4">
+          <div class="kpi-card kpi-blue">
+            <div class="kpi-label">Total Billed</div>
+            <div class="kpi-value">{{ totalAmountBilled | currency }}</div>
+            <div class="kpi-icon">💰</div>
           </div>
-
-          <div class="col-12 col-md-3">
-            <label for="dateRange" class="form-label fw-semibold">Date Range</label>
-            <select id="dateRange" class="form-select" name="dateRange" [(ngModel)]="selectedDateRangeKey">
-              @for (opt of dateRangeOptions; track opt.key) {
-                <option [ngValue]="opt.key">{{ opt.label }} ({{ dateRangeLabel(opt.key) }})</option>
-              }
-            </select>
-          </div>
-
-          <div class="col-12 col-md-3">
-            <label for="dashboardView" class="form-label fw-semibold">Dashboard View</label>
-            <select id="dashboardView" class="form-select" name="dashboardView" [(ngModel)]="selectedDashboardView">
-              @for (opt of dashboardViewOptions; track opt.value) {
-                <option [ngValue]="opt.value">{{ opt.label }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="col-12 col-md-3 d-grid">
-            <button type="submit" class="btn btn-primary" [disabled]="loading">
-              @if (loading) {
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Loading...
-              } @else {
-                Search
-              }
-            </button>
-          </div>
-
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Error Alert -->
-  @if (errorMsg) {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      {{ errorMsg }}
-      <button type="button" class="btn-close" (click)="errorMsg = null" aria-label="Close"></button>
-    </div>
-  }
-
-  <!-- Results Card -->
-  @if (submitted && !loading) {
-    <div class="card shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span class="fw-semibold">Results</span>
-        <span class="badge bg-secondary">{{ results.length }} record(s)</span>
+        <div class="col-12 col-sm-4">
+          <div class="kpi-card kpi-green">
+            <div class="kpi-label">Total Payments</div>
+            <div class="kpi-value">{{ totalPayments | currency }}</div>
+            <div class="kpi-icon">✅</div>
+          </div>
+        </div>
+        <div class="col-12 col-sm-4">
+          <div class="kpi-card" [class.kpi-red]="totalBalance > 0" [class.kpi-green]="totalBalance <= 0">
+            <div class="kpi-label">Outstanding Balance</div>
+            <div class="kpi-value">{{ totalBalance | currency }}</div>
+            <div class="kpi-icon">⚖️</div>
+          </div>
+        </div>
       </div>
+    }
 
-      @if (results.length === 0) {
-        <div class="card-body text-center text-muted py-5">
-          <p class="mb-0">No records found for the selected criteria.</p>
-        </div>
-      } @else {
-        <!-- Summary Badges -->
-        <div class="card-body border-bottom pb-3">
-          <div class="row g-3">
-            <div class="col-auto">
-              <span class="badge text-bg-primary fs-6 px-3 py-2">
-                Billed: {{ totalAmountBilled | currency }}
-              </span>
+    <!-- Filter Card -->
+    <div class="oms-card mb-4">
+      <div class="oms-card-header">
+        <span>🔍 Filter Orders</span>
+      </div>
+      <div class="oms-card-body">
+        <form (ngSubmit)="submit()" #filterForm="ngForm">
+          <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-3">
+              <label for="clientSelect" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Client</label>
+              <select id="clientSelect" class="form-select form-select-sm" name="clientSelect"
+                      [(ngModel)]="selectedClientId" [disabled]="clientsLoading">
+                <option [ngValue]="undefined">
+                  @if (clientsLoading) { Loading... } @else { — All Clients — }
+                </option>
+                @for (c of clients; track c.id) {
+                  <option [ngValue]="c.id">{{ c.name }}</option>
+                }
+              </select>
             </div>
-            <div class="col-auto">
-              <span class="badge text-bg-success fs-6 px-3 py-2">
-                Payments: {{ totalPayments | currency }}
-              </span>
+
+            <div class="col-12 col-md-3">
+              <label for="dateRange" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Date Range</label>
+              <select id="dateRange" class="form-select form-select-sm" name="dateRange" [(ngModel)]="selectedDateRangeKey">
+                @for (opt of dateRangeOptions; track opt.key) {
+                  <option [ngValue]="opt.key">{{ opt.label }} ({{ dateRangeLabel(opt.key) }})</option>
+                }
+              </select>
             </div>
-            <div class="col-auto">
-              <span class="badge text-bg-warning text-dark fs-6 px-3 py-2">
-                Balance: {{ totalBalance | currency }}
-              </span>
+
+            <div class="col-12 col-md-3">
+              <label for="dashboardView" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">View</label>
+              <select id="dashboardView" class="form-select form-select-sm" name="dashboardView" [(ngModel)]="selectedDashboardView">
+                @for (opt of dashboardViewOptions; track opt.value) {
+                  <option [ngValue]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
             </div>
+
+            <div class="col-12 col-md-3 d-grid">
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading">
+                @if (loading) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Loading...
+                } @else {
+                  🔍 Search
+                }
+              </button>
+            </div>
+
           </div>
-        </div>
-
-        <!-- Table -->
-        <div class="table-responsive">
-          <table class="table table-hover table-bordered mb-0 align-middle">
-            <thead class="table-dark">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Order #</th>
-                <th scope="col">Patient</th>
-                <th scope="col">MRN</th>
-                <th scope="col">Drug</th>
-                <th scope="col">DOS</th>
-                <th scope="col">Est. Delivery</th>
-                <th scope="col">Insurance</th>
-                <th scope="col">Task</th>
-                <th scope="col" class="text-end">Units Billed</th>
-                <th scope="col" class="text-end">Amount Billed</th>
-                <th scope="col" class="text-end">Payments</th>
-                <th scope="col" class="text-end">Balance</th>
-                <th scope="col" class="text-center">Billed?</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @for (row of results; track row.orderId; let i = $index) {
-                <tr>
-                  <td class="text-muted small">{{ i + 1 }}</td>
-                  <td class="fw-semibold">{{ row.orderNumber ?? '—' }}</td>
-                  <td>{{ row.patientName ?? '—' }}</td>
-                  <td class="text-muted small">{{ row.mrn ?? '—' }}</td>
-                  <td>{{ row.drugName ?? '—' }}</td>
-                  <td class="small">{{ row.dos ? (row.dos | date:'MM/dd/yyyy') : '—' }}</td>
-                  <td class="small">{{ row.estimatedDeliveryDate ? (row.estimatedDeliveryDate | date:'MM/dd/yyyy') : '—' }}</td>
-                  <td>{{ row.insuranceName ?? '—' }}</td>
-                  <td>
-                    @if (row.currentTaskCode) {
-                      <span class="badge text-bg-info">{{ row.currentTaskCode }}</span>
-                    } @else {
-                      <span class="text-muted">—</span>
-                    }
-                  </td>
-                  <td class="text-end">{{ row.totalUnitsBilled ?? 0 }}</td>
-                  <td class="text-end">{{ row.totalAmountBilled | currency }}</td>
-                  <td class="text-end text-success fw-semibold">{{ row.totalPayments | currency }}</td>
-                  <td class="text-end" [class.text-danger]="(row.totalBalance ?? 0) > 0" [class.text-success]="(row.totalBalance ?? 0) <= 0">
-                    {{ row.totalBalance | currency }}
-                  </td>
-                  <td class="text-center">
-                    @if (row.isBilled) {
-                      <span class="badge text-bg-success">Yes</span>
-                    } @else {
-                      <span class="badge text-bg-secondary">No</span>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-
-            <tfoot class="table-dark fw-bold">
-              <tr>
-                <td colspan="10" class="text-end">Totals</td>
-                <td class="text-end">{{ totalAmountBilled | currency }}</td>
-                <td class="text-end text-success">{{ totalPayments | currency }}</td>
-                <td class="text-end" [class.text-danger]="totalBalance > 0">{{ totalBalance | currency }}</td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      }
+        </form>
+      </div>
     </div>
-  }
 
+    <!-- Error Alert -->
+    @if (errorMsg) {
+      <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+        <strong>Error:</strong> {{ errorMsg }}
+        <button type="button" class="btn-close" (click)="errorMsg = null" aria-label="Close"></button>
+      </div>
+    }
+
+    <!-- Results -->
+    @if (submitted && !loading) {
+      <div class="oms-card">
+        <div class="oms-card-header d-flex justify-content-between align-items-center">
+          <span>📋 Results</span>
+          <span class="badge rounded-pill bg-white text-primary border border-primary px-3">{{ results.length }} record(s)</span>
+        </div>
+
+        @if (results.length === 0) {
+          <div class="oms-card-body text-center py-5">
+            <div class="display-4 mb-3">🔎</div>
+            <h5 class="text-muted">No records found</h5>
+            <p class="text-muted small">Try adjusting your filters and search again.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table oms-table mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th class="th-sortable" (click)="sortBy('orderNumber')" [class.th-sorted]="sortField==='orderNumber'">Order # <span class="sort-icon">{{ sortField==='orderNumber' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('patientName')" [class.th-sorted]="sortField==='patientName'">Patient <span class="sort-icon">{{ sortField==='patientName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('mrn')" [class.th-sorted]="sortField==='mrn'">MRN <span class="sort-icon">{{ sortField==='mrn' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('drugName')" [class.th-sorted]="sortField==='drugName'">Drug <span class="sort-icon">{{ sortField==='drugName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('dos')" [class.th-sorted]="sortField==='dos'">DOS <span class="sort-icon">{{ sortField==='dos' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('estimatedDeliveryDate')" [class.th-sorted]="sortField==='estimatedDeliveryDate'">Est. Delivery <span class="sort-icon">{{ sortField==='estimatedDeliveryDate' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('insuranceName')" [class.th-sorted]="sortField==='insuranceName'">Insurance <span class="sort-icon">{{ sortField==='insuranceName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable" (click)="sortBy('currentTaskCode')" [class.th-sorted]="sortField==='currentTaskCode'">Task <span class="sort-icon">{{ sortField==='currentTaskCode' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable text-end" (click)="sortBy('totalUnitsBilled')" [class.th-sorted]="sortField==='totalUnitsBilled'">Units <span class="sort-icon">{{ sortField==='totalUnitsBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable text-end" (click)="sortBy('totalAmountBilled')" [class.th-sorted]="sortField==='totalAmountBilled'">Billed <span class="sort-icon">{{ sortField==='totalAmountBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable text-end" (click)="sortBy('totalPayments')" [class.th-sorted]="sortField==='totalPayments'">Payments <span class="sort-icon">{{ sortField==='totalPayments' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable text-end" (click)="sortBy('totalBalance')" [class.th-sorted]="sortField==='totalBalance'">Balance <span class="sort-icon">{{ sortField==='totalBalance' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                  <th class="th-sortable text-center" (click)="sortBy('isBilled')" [class.th-sorted]="sortField==='isBilled'">Billed? <span class="sort-icon">{{ sortField==='isBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of sortedResults; track row.orderId; let i = $index) {
+                  <tr>
+                    <td class="text-muted small">{{ i + 1 }}</td>
+                    <td><span class="fw-semibold text-primary">{{ row.orderNumber ?? '—' }}</span></td>
+                    <td class="fw-semibold">{{ row.patientName ?? '—' }}</td>
+                    <td><span class="badge text-bg-light text-dark border">{{ row.mrn ?? '—' }}</span></td>
+                    <td>{{ row.drugName ?? '—' }}</td>
+                    <td class="small text-muted">{{ row.dos ? (row.dos | date:'MM/dd/yyyy') : '—' }}</td>
+                    <td class="small text-muted">{{ row.estimatedDeliveryDate ? (row.estimatedDeliveryDate | date:'MM/dd/yyyy') : '—' }}</td>
+                    <td class="small">{{ row.insuranceName ?? '—' }}</td>
+                    <td>
+                      @if (row.currentTaskCode) {
+                        <span class="badge text-bg-info rounded-pill">{{ row.currentTaskCode }}</span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td class="text-end">{{ row.totalUnitsBilled ?? 0 }}</td>
+                    <td class="text-end">{{ row.totalAmountBilled | currency }}</td>
+                    <td class="text-end text-success fw-semibold">{{ row.totalPayments | currency }}</td>
+                    <td class="text-end fw-semibold"
+                        [class.text-danger]="(row.totalBalance ?? 0) > 0"
+                        [class.text-success]="(row.totalBalance ?? 0) <= 0">
+                      {{ row.totalBalance | currency }}
+                    </td>
+                    <td class="text-center">
+                      @if (row.isBilled) {
+                        <span class="badge text-bg-success rounded-pill">✓ Yes</span>
+                      } @else {
+                        <span class="badge text-bg-secondary rounded-pill">No</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
+                <tr class="table-totals-row">
+                  <td colspan="10" class="text-end fw-bold text-muted">Totals</td>
+                  <td class="text-end fw-bold">{{ totalAmountBilled | currency }}</td>
+                  <td class="text-end fw-bold text-success">{{ totalPayments | currency }}</td>
+                  <td class="text-end fw-bold" [class.text-danger]="totalBalance > 0" [class.text-success]="totalBalance <= 0">{{ totalBalance | currency }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        }
+      </div>
+    }
+
+  </main>
 </div>

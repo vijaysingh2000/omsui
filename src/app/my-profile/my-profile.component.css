@@ -1,0 +1,125 @@
+/* ── Shell (shared with dashboard/report) ───────────────────── */
+/* relies on .oms-shell, .oms-sidebar, .oms-main from styles.css */
+
+/* ── Loading spinner centered ───────────────────────────────── */
+.profile-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+
+/* ── Card wrapper – centers the card in the content area ─────── */
+.profile-card-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2.5rem 1.5rem;
+}
+
+/* ── Card ─────────────────────────────────────────────────────── */
+.profile-card {
+  width: 100%;
+  max-width: 680px;
+  border: 1px solid #c5cae9;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(40, 53, 147, 0.10);
+  background: #fff;
+}
+
+/* ── Title bar ─────────────────────────────────────────────────── */
+.profile-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  background: linear-gradient(90deg, #3949ab 0%, #5c6bc0 100%);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: default;
+}
+.profile-title-icon { font-size: 1rem; }
+
+/* ── Form layout ───────────────────────────────────────────────── */
+.profile-form {
+  padding: 1.6rem 1.5rem 1.2rem;
+}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2.5rem;
+}
+
+@media (max-width: 600px) {
+  .profile-fields { grid-template-columns: 1fr; }
+}
+
+/* ── Individual field row ──────────────────────────────────────── */
+.profile-field {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.profile-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3949ab;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 0.4rem;
+}
+
+.profile-input {
+  border-color: #c5cae9;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+.profile-input:focus {
+  border-color: #5c6bc0;
+  box-shadow: 0 0 0 0.18rem rgba(92, 107, 192, 0.22);
+}
+
+/* ── Actions bar ───────────────────────────────────────────────── */
+.profile-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #e8eaf6;
+  margin-top: 0.5rem;
+}
+
+.profile-btn-save {
+  min-width: 90px;
+  background: #3949ab;
+  border: 1px solid #3949ab;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+.profile-btn-save:hover:not(:disabled) {
+  background: #283593;
+  border-color: #283593;
+  color: #fff;
+}
+.profile-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.profile-btn-close {
+  min-width: 90px;
+  background: #fff;
+  border: 1px solid #9fa8da;
+  color: #3949ab;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.profile-btn-close:hover {
+  background: #e8eaf6;
+  color: #1a237e;
+}

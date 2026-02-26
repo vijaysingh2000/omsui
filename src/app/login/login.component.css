@@ -1,4 +1,188 @@
-:host {
-  display: block;
+:host { display: block; min-height: 100vh; }
+
+/* ── Full-page layout ───────────────────────────────────────────── */
+.login-page {
+  display: flex;
   min-height: 100vh;
+}
+
+/* ── Left branding panel ────────────────────────────────────────── */
+.login-brand {
+  flex: 1;
+  background: linear-gradient(160deg, #0d1b6e 0%, #1a237e 40%, #3949ab 80%, #5c6bc0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  min-height: 100vh;
+}
+
+.brand-content { color: #fff; max-width: 340px; }
+
+.brand-logo {
+  font-size: 4rem;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+}
+
+.brand-name {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  margin: 0 0 0.25rem;
+  color: #fff;
+}
+
+.brand-tagline {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.72);
+  margin-bottom: 2rem;
+  letter-spacing: 0.04em;
+}
+
+.brand-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.brand-bullets li {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.82);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Right login panel ──────────────────────────────────────────── */
+.login-panel {
+  width: 420px;
+  flex-shrink: 0;
+  background: #f4f5fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+}
+
+/* ── Card ───────────────────────────────────────────────────────── */
+.login-card {
+  width: 100%;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(26,35,126,0.13);
+  overflow: hidden;
+  border: 1px solid #c5cae9;
+}
+
+.login-card-header {
+  background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+  color: #fff;
+  padding: 1rem 1.4rem;
+  font-size: 0.97rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: 0.02em;
+}
+
+.login-header-icon { font-size: 1.1rem; }
+
+/* ── Form ───────────────────────────────────────────────────────── */
+.login-form {
+  padding: 1.8rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-field { display: flex; flex-direction: column; gap: 0.35rem; }
+
+.login-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #3949ab;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.login-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-input-icon {
+  position: absolute;
+  left: 11px;
+  font-size: 0.95rem;
+  pointer-events: none;
+  color: #9fa8da;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.55rem 0.75rem 0.55rem 2.2rem;
+  font-size: 0.9rem;
+  border: 1.5px solid #c5cae9;
+  border-radius: 7px;
+  background: #f8f9fe;
+  color: #1a237e;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.login-input:focus {
+  border-color: #5c6bc0;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(92,107,192,0.18);
+}
+.login-input::placeholder { color: #b0bac9; }
+
+/* ── Error ──────────────────────────────────────────────────────── */
+.login-error {
+  background: #fce4ec;
+  border: 1px solid #f48fb1;
+  color: #b71c1c;
+  border-radius: 7px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Submit button ──────────────────────────────────────────────── */
+.login-btn {
+  width: 100%;
+  padding: 0.65rem;
+  background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: opacity 0.18s, box-shadow 0.18s;
+  box-shadow: 0 4px 14px rgba(26,35,126,0.22);
+  margin-top: 0.25rem;
+}
+.login-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgba(26,35,126,0.3);
+}
+.login-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Responsive: stack on small screens ─────────────────────────── */
+@media (max-width: 700px) {
+  .login-page { flex-direction: column; }
+  .login-brand { min-height: 220px; padding: 2rem 1.5rem; }
+  .brand-bullets { display: none; }
+  .login-panel { width: 100%; min-height: unset; padding: 2rem 1rem; }
 }

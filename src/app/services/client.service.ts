@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ClientModel, Client_Request } from './models';
+import { SessionService } from './session.service';
 import config from '../config.json';
 
 const BASE_URL = config.apiBaseUrl;
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private session: SessionService) {}
 
   get(request: Client_Request): Observable<ClientModel> {
-    return this.http.post<ClientModel>(`${BASE_URL}/api/Client/Get`, request);
+    return this.http.post<ClientModel>(`${BASE_URL}/api/Client/Get`, this.session.withSession(request));
   }
 
   getAll(): Observable<ClientModel[]> {
@@ -23,10 +24,10 @@ export class ClientService {
   }
 
   delete(request: Client_Request): Observable<void> {
-    return this.http.delete<void>(`${BASE_URL}/api/Client/Delete`, { body: request });
+    return this.http.delete<void>(`${BASE_URL}/api/Client/Delete`, { body: this.session.withSession(request) });
   }
 
   addOrUpdate(request: Client_Request): Observable<ClientModel> {
-    return this.http.post<ClientModel>(`${BASE_URL}/api/Client/AddOrUpdate`, request);
+    return this.http.post<ClientModel>(`${BASE_URL}/api/Client/AddOrUpdate`, this.session.withSession(request));
   }
 }

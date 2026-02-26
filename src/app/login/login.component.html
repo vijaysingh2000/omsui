@@ -1,46 +1,66 @@
-<main class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-  <div class="card shadow-sm" style="width: 100%; max-width: 400px;">
-    <div class="card-body p-4">
-      <h1 class="card-title h4 mb-4">Login</h1>
+<div class="login-page">
 
-      <form (ngSubmit)="onSubmit()">
-        <div class="mb-3">
-          <label for="username" class="form-label fw-semibold">User Name</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            class="form-control"
-            [(ngModel)]="username"
-            required
-            autocomplete="username"
-            placeholder="Enter username"
-          />
+  <!-- Left login panel -->
+  <div class="login-panel">
+    <div class="login-card">
+
+      <div class="login-card-header">
+        <span class="login-header-icon">&#x1F511;</span>
+        <span>Sign in to your account</span>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="login-form" autocomplete="off">
+
+        <div class="login-field">
+          <label for="username" class="login-label">Username</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">&#x1F464;</span>
+            <input id="username" name="username" type="text"
+                   class="login-input"
+                   [(ngModel)]="username"
+                   required autocomplete="username"
+                   placeholder="Enter your username" />
+          </div>
         </div>
 
-        <div class="mb-4">
-          <label for="password" class="form-label fw-semibold">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            class="form-control"
-            [(ngModel)]="password"
-            required
-            autocomplete="current-password"
-            placeholder="Enter password"
-          />
-        </div>
-
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary w-100">Sign In</button>
-          <button type="button" class="btn btn-outline-secondary w-100" routerLink="/">Cancel</button>
+        <div class="login-field">
+          <label for="password" class="login-label">Password</label>
+          <div class="login-input-wrap">
+            <span class="login-input-icon">&#x1F512;</span>
+            <input id="password" name="password" type="password"
+                   class="login-input"
+                   [(ngModel)]="password"
+                   required autocomplete="current-password"
+                   placeholder="Enter your password" />
+          </div>
         </div>
 
         @if (errorMessage) {
-          <div class="alert alert-danger mt-3 mb-0 py-2">{{ errorMessage }}</div>
+          <div class="login-error">
+            <span>&#x26A0;</span> {{ errorMessage }}
+          </div>
         }
+
+        <button type="submit" class="login-btn" [disabled]="!username">
+          Sign In &nbsp;&#x2192;
+        </button>
+
       </form>
     </div>
   </div>
-</main>
+
+  <!-- Right branding panel -->
+  <div class="login-brand">
+    <div class="brand-content">
+      <div class="brand-logo">&#x2695;</div>
+      <h1 class="brand-name">OMS</h1>
+      <p class="brand-tagline">Order Management System</p>
+      <ul class="brand-bullets">
+        <li>&#x2714; Real-time order tracking</li>
+        <li>&#x2714; Integrated billing &amp; payments</li>
+        <li>&#x2714; Reports &amp; analytics</li>
+      </ul>
+    </div>
+  </div>
+
+</div>

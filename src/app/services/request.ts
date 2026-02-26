@@ -27,6 +27,8 @@ import {
 
 export interface BatchInvoice_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   invoiceType?: number;
   status?: number[] | null;
   batchName?: string | null;
@@ -41,6 +43,8 @@ export interface BatchInvoice_Request {
 
 export interface BatchPayment_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   batchName?: string | null;
   ignoreId?: string;     // uuid
   batchId?: string;      // uuid
@@ -53,6 +57,8 @@ export interface BatchPayment_Request {
 
 export interface Client_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;         // uuid
   models?: ClientModel[] | null;
@@ -62,6 +68,8 @@ export interface Client_Request {
 
 export interface Insurance_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   models?: InsuranceModel[] | null;
@@ -71,6 +79,8 @@ export interface Insurance_Request {
 
 export interface List_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   listName?: E_ListName;
@@ -81,6 +91,8 @@ export interface List_Request {
 
 export interface OrderAssay_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   models?: OrderAssay[] | null;
@@ -90,6 +102,8 @@ export interface OrderAssay_Request {
 
 export interface OrderInvoice_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   batchGuid?: string;
@@ -101,6 +115,8 @@ export interface OrderInvoice_Request {
 
 export interface OrderPaymentsClient_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   models?: OrderPaymentClient[] | null;
@@ -110,6 +126,8 @@ export interface OrderPaymentsClient_Request {
 
 export interface OrderPaymentsInsurance_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   batchId?: string;
@@ -120,6 +138,8 @@ export interface OrderPaymentsInsurance_Request {
 
 export interface Orders_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   orderNumber?: string | null;
@@ -142,6 +162,8 @@ export interface Orders_Request {
 
 export interface OrderTask_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   taskCode?: string | null;
@@ -152,6 +174,8 @@ export interface OrderTask_Request {
 
 export interface Patients_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   mrn?: string | null;
@@ -162,6 +186,8 @@ export interface Patients_Request {
 
 export interface Provider_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   models?: BaseModel[] | null;
@@ -171,6 +197,8 @@ export interface Provider_Request {
 
 export interface StaticList_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   listName?: E_ListName;
   id?: number;
   name?: string | null;
@@ -186,6 +214,8 @@ export interface StaticList_Request {
 
 export interface Users_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number;
   guid?: string;
   loginId?: string | null;
@@ -197,6 +227,8 @@ export interface Users_Request {
 
 export interface Report_Request {
   clientId?: number;
+  userId?: number;
+  userType?: number;
   id?: number | null;
   guid?: string | null;         // uuid
   userAccess?: E_UserAccess;

@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import * as XLSX from 'xlsx';
 import { ReportService } from '../services/report.service';
 import { MiscService } from '../services/misc.service';
 import { SessionService } from '../services/session.service';
@@ -27,7 +28,7 @@ export interface ReportDefinition {
 
 @Component({
   selector: 'app-report',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
   templateUrl: './report.component.html',
   styleUrl: './report.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -359,6 +360,31 @@ export class ReportComponent implements OnInit {
   submitted = false;
   displayedReport: ReportDefinition | null = null;
 
+  sortField: string | null = null;
+  sortDir: 'asc' | 'desc' = 'asc';
+
+  sortBy(field: string): void {
+    if (this.sortField === field) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDir = 'asc';
+    }
+  }
+
+  get sortedResults(): any[] {
+    if (!this.sortField) return this.results;
+    const field = this.sortField;
+    const dir = this.sortDir === 'asc' ? 1 : -1;
+    return [...this.results].sort((a, b) => {
+      const av = a[field] ?? '';
+      const bv = b[field] ?? '';
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+      return 0;
+    });
+  }
+
   get selectedReport(): ReportDefinition {
     return this.reports.find(r => r.key === this.selectedReportKey)!;
   }
@@ -370,18 +396,19 @@ export class ReportComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private currencyPipe: CurrencyPipe,
     private datePipe: DatePipe,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
     this.reportsLoading = true;
     this.miscService.getAllReports()
-      .pipe(finalize(() => { this.reportsLoading = false; this.cdr.markForCheck(); }))
+      .pipe(finalize(() => { this.reportsLoading = false; this.cdr.detectChanges(); }))
       .subscribe({
         next: (data) => {
           this.availableReports = data ?? [];
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
-        error: () => { /* leave availableReports empty → falls back to hardcoded list */ },
+        error: () => { this.cdr.detectChanges(); },
       });
   }
 
@@ -415,6 +442,9 @@ export class ReportComponent implements OnInit {
     this.submitted = true;
     this.results = [];
     this.displayedReport = this.selectedReport;
+    this.sortField = null;
+    this.sortDir = 'asc';
+    this.cdr.detectChanges();
 
     const def = this.selectedReport;
     const req = this.buildRequest(def);
@@ -432,20 +462,20 @@ export class ReportComponent implements OnInit {
       case 'financial':
         this.errorMsg = 'Financial Report is not yet implemented.';
         this.loading = false;
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
         return;
       default:                       obs$ = this.reportService.getOrdersInProgress(req);
     }
 
-    obs$.pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
+    obs$.pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))
       .subscribe({
         next: (data: any[]) => {
           this.results = data ?? [];
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
         error: (err: any) => {
           this.errorMsg = err?.message ?? 'An error occurred.';
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         },
       });
   }
@@ -468,5 +498,29 @@ export class ReportComponent implements OnInit {
 
   columnTotal(field: string): number {
     return this.results.reduce((s, r) => s + (r[field] ?? 0), 0);
+  }
+
+  exportToExcel(): void {
+    if (!this.displayedReport || !this.sortedResults.length) return;
+    const headers = this.displayedReport.columns.map(c => c.header);
+    const rows = this.sortedResults.map(row =>
+      this.displayedReport!.columns.map(col => row[col.field] ?? '')
+    );
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+    // Auto-fit column widths
+    const colWidths = headers.map((h, i) => ({
+      wch: Math.max(h.length, ...rows.map(r => String(r[i] ?? '').length), 10)
+    }));
+    ws['!cols'] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, this.displayedReport.label.substring(0, 31));
+    XLSX.writeFile(wb, `${this.displayedReport.label}.xlsx`);
+  }
+
+  logout(): void {
+    this.session.clearSession();
+    this.router.navigate(['/login']);
   }
 }

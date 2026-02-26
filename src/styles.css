@@ -1,1 +1,174 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #f0f2f5;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ══ Shared Shell Layout ══════════════════════════════════════════════════ */
+.oms-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f2f5;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.oms-sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a237e 0%, #283593 60%, #3949ab 100%);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 3px 0 12px rgba(0,0,0,0.18);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 22px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.brand-icon { font-size: 1.6rem; line-height: 1; }
+.brand-text  { color: #fff; font-size: 1.35rem; font-weight: 700; letter-spacing: 2px; }
+
+.sidebar-nav    { flex: 1; padding: 12px 0; overflow-y: auto; }
+.sidebar-footer { border-top: 1px solid rgba(255,255,255,0.12); padding: 8px 0 12px; }
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 22px;
+  color: rgba(255,255,255,0.78);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+  border-left: 3px solid transparent;
+}
+.sidebar-link:hover  { background: rgba(255,255,255,0.1);  color: #fff; border-left-color: rgba(255,255,255,0.4); }
+.sidebar-link.active { background: rgba(255,255,255,0.16); color: #fff; font-weight: 600; border-left-color: #82b1ff; }
+.link-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+.sidebar-logout {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: rgba(255, 100, 100, 0.85);
+}
+.sidebar-logout:hover {
+  background: rgba(255, 80, 80, 0.15) !important;
+  color: #ff8a80 !important;
+  border-left-color: #ff8a80 !important;
+}
+
+/* ── Main content area ──────────────────────────────────────────────────── */
+.oms-main {
+  margin-left: 220px;
+  flex: 1;
+  padding: 28px 32px;
+  min-height: 100vh;
+}
+
+/* ── Page header ────────────────────────────────────────────────────────── */
+.oms-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e3e8f0;
+}
+.oms-page-header h4 { color: #1a237e; font-size: 1.3rem; }
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.oms-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+  border: 1px solid #e8eaf0;
+}
+
+.oms-card-header {
+  background: linear-gradient(90deg, #1a237e 0%, #3949ab 100%);
+  color: #fff;
+  font-weight: 600;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oms-card-body { padding: 20px; }
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.oms-table {
+  width: 100%;
+  font-size: 0.84rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.oms-table thead tr {
+  background: linear-gradient(90deg, #9fa8da 0%, #c5cae9 100%);
+  color: #1a237e;
+}
+.oms-table thead th {
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  white-space: nowrap;
+}
+.oms-table tbody tr { transition: background 0.15s; }
+.oms-table tbody tr:nth-child(even) { background: #f8f9fc; }
+.oms-table tbody tr:hover { background: #e8eaf6; }
+.oms-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+.table-totals-row td {
+  background: #f0f2f5;
+  padding: 12px 14px;
+  border-top: 2px solid #c5cae9;
+  font-size: 0.86rem;
+}
+
+/* ── KPI Cards ──────────────────────────────────────────────────────────── */
+.kpi-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 20px 22px;
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+}
+.kpi-blue  { background: linear-gradient(135deg, #1565c0, #42a5f5); }
+.kpi-green { background: linear-gradient(135deg, #2e7d32, #66bb6a); }
+.kpi-red   { background: linear-gradient(135deg, #b71c1c, #ef5350); }
+.kpi-label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.88; margin-bottom: 6px; }
+.kpi-value { font-size: 1.65rem; font-weight: 700; line-height: 1; }
+.kpi-icon  { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 2.4rem; opacity: 0.22; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 991px) {
+  .oms-sidebar { width: 65px; }
+  .brand-text, .sidebar-link span:not(.link-icon) { display: none; }
+  .oms-main { margin-left: 65px; padding: 16px; }
+}

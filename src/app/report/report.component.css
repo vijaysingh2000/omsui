@@ -1,0 +1,10 @@
+.report-table-wrapper {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.report-sticky-head th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}

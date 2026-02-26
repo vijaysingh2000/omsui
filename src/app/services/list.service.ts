@@ -1,0 +1,32 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { BaseModel, List_Request } from './models';
+import config from '../config.json';
+
+const BASE_URL = config.apiBaseUrl;
+
+@Injectable({ providedIn: 'root' })
+export class ListService {
+  constructor(private http: HttpClient) {}
+
+  get(request: List_Request): Observable<BaseModel> {
+    return this.http.post<BaseModel>(`${BASE_URL}/api/List/Get`, request);
+  }
+
+  getAll(request: List_Request): Observable<BaseModel[]> {
+    return this.http.post<BaseModel[]>(`${BASE_URL}/api/List/GetAll`, request);
+  }
+
+  getActive(request: List_Request): Observable<BaseModel[]> {
+    return this.http.post<BaseModel[]>(`${BASE_URL}/api/List/GetActive`, request);
+  }
+
+  delete(request: List_Request): Observable<void> {
+    return this.http.delete<void>(`${BASE_URL}/api/List/Delete`, { body: request });
+  }
+
+  addOrUpdate(request: List_Request): Observable<BaseModel> {
+    return this.http.post<BaseModel>(`${BASE_URL}/api/List/AddOrUpdate`, request);
+  }
+}

@@ -6,12 +6,13 @@ import { finalize } from 'rxjs/operators';
 import { ReportService } from '../services/report.service';
 import { ClientService } from '../services/client.service';
 import { SessionService } from '../services/session.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ClientModel, OrderInProgress, Report_Request } from '../services/models';
 import { E_DashboardView } from '../services/enum';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, RouterLinkActive, FormsModule, CommonModule],
+  imports: [RouterLink, RouterLinkActive, FormsModule, CommonModule, SidebarComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,7 +26,6 @@ export class DashboardComponent implements OnInit {
     { label: 'Full View',      value: E_DashboardView.FullView },
     { label: 'Unbilled View',  value: E_DashboardView.UnbilledView },
     { label: 'Billed View',    value: E_DashboardView.BilledView },
-    { label: 'All',            value: E_DashboardView.ALL },
   ];
 
   readonly dateRangeOptions: { label: string; key: string }[] = [
@@ -38,8 +38,8 @@ export class DashboardComponent implements OnInit {
     { label: 'Last 2 Years',  key: 'last2Years' },
   ];
 
-  selectedDashboardView: E_DashboardView = E_DashboardView.ALL;
-  selectedDateRangeKey = 'currentMonth';
+  selectedDashboardView: E_DashboardView = E_DashboardView.UnbilledView;
+  selectedDateRangeKey = 'last2Years';
   clientId: number | undefined = undefined;
 
   clients: ClientModel[] = [];
@@ -119,6 +119,33 @@ export class DashboardComponent implements OnInit {
   sortField: string | null = null;
   sortDir: 'asc' | 'desc' = 'asc';
 
+  collapsedGroups = new Set<string>();
+
+  toggleGroup(key: string): void {
+    if (this.collapsedGroups.has(key)) {
+      this.collapsedGroups.delete(key);
+    } else {
+      this.collapsedGroups.add(key);
+    }
+    this.cdr.detectChanges();
+  }
+
+  isGroupCollapsed(key: string): boolean {
+    return this.collapsedGroups.has(key);
+  }
+
+  expandAll(): void {
+    this.collapsedGroups.clear();
+    this.cdr.detectChanges();
+  }
+
+  collapseAll(): void {
+    for (const g of this.groupedResults) {
+      this.collapsedGroups.add(g.sortKey);
+    }
+    this.cdr.detectChanges();
+  }
+
   sortBy(field: string): void {
     if (this.sortField === field) {
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
@@ -139,6 +166,36 @@ export class DashboardComponent implements OnInit {
       if (av > bv) return dir;
       return 0;
     });
+  }
+
+  get groupedResults(): { label: string; sortKey: string; rows: OrderInProgress[] }[] {
+    const map = new Map<string, { label: string; sortKey: string; rows: OrderInProgress[] }>();
+    for (const row of this.sortedResults) {
+      let label = 'Unknown';
+      let sortKey = '0000-00';
+      if (row.dos) {
+        const d = new Date(row.dos);
+        sortKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+      }
+      if (!map.has(sortKey)) {
+        map.set(sortKey, { label, sortKey, rows: [] });
+      }
+      map.get(sortKey)!.rows.push(row);
+    }
+    return Array.from(map.values()).sort((a, b) => b.sortKey.localeCompare(a.sortKey));
+  }
+
+  groupTotalBilled(rows: OrderInProgress[]): number {
+    return rows.reduce((sum, r) => sum + (r.totalAmountBilled ?? 0), 0);
+  }
+
+  groupTotalPayments(rows: OrderInProgress[]): number {
+    return rows.reduce((sum, r) => sum + (r.totalPayments ?? 0), 0);
+  }
+
+  groupTotalBalance(rows: OrderInProgress[]): number {
+    return rows.reduce((sum, r) => sum + (r.totalBalance ?? 0), 0);
   }
 
   constructor(
@@ -170,6 +227,7 @@ export class DashboardComponent implements OnInit {
     this.results = [];
     this.sortField = null;
     this.sortDir = 'asc';
+    this.collapsedGroups.clear();
     this.cdr.detectChanges();
     this.reportService.getOrdersInProgress(this.buildRequest())
       .pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))

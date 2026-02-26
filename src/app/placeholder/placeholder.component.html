@@ -1,46 +1,7 @@
 <div class="oms-shell">
 
   <!-- Sidebar -->
-  <aside class="oms-sidebar">
-    <div class="sidebar-brand">
-      <span class="brand-icon">&#x2695;</span>
-      <span class="brand-text">OMS</span>
-    </div>
-    <nav class="sidebar-nav">
-      <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-        <span class="link-icon">&#x1F4CA;</span> Dashboard
-      </a>
-      <a class="sidebar-link" routerLink="/patients" routerLinkActive="active">
-        <span class="link-icon">&#x1F9D1;&#x200D;&#x2695;&#xFE0F;</span> Patients
-      </a>
-      <a class="sidebar-link" routerLink="/call-list" routerLinkActive="active">
-        <span class="link-icon">&#x1F4DE;</span> Call List
-      </a>
-      <a class="sidebar-link" routerLink="/list" routerLinkActive="active">
-        <span class="link-icon">&#x1F4CB;</span> List
-      </a>
-      <a class="sidebar-link" routerLink="/batch-payment" routerLinkActive="active">
-        <span class="link-icon">&#x1F4B3;</span> Batch Payment
-      </a>
-      <a class="sidebar-link" routerLink="/invoices" routerLinkActive="active">
-        <span class="link-icon">&#x1F9FE;</span> Invoices
-      </a>
-      <a class="sidebar-link" routerLink="/users" routerLinkActive="active">
-        <span class="link-icon">&#x1F465;</span> Users
-      </a>
-      <a class="sidebar-link" routerLink="/reports" routerLinkActive="active">
-        <span class="link-icon">&#x1F4C8;</span> Reports
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <a class="sidebar-link" routerLink="/my-profile" routerLinkActive="active">
-        <span class="link-icon">&#x1F464;</span> My Profile
-      </a>
-      <button class="sidebar-link sidebar-logout" (click)="logout()">
-        <span class="link-icon">&#x1F6AA;</span> Logout
-      </button>
-    </div>
-  </aside>
+  <app-sidebar></app-sidebar>
 
   <!-- Main Content -->
   <main class="oms-main">

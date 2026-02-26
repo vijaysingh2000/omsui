@@ -5,12 +5,16 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { UsersService } from '../services/users.service';
 import { SessionService } from '../services/session.service';
-import { User } from '../services/models';
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { StaticListService } from '../services/static-list.service';
+import { ClientService } from '../services/client.service';
+import { User, BaseModel, ClientModel } from '../services/models';
+import { E_ListName } from '../services/enum';
 
 @Component({
   selector: 'app-my-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, SidebarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './my-profile.component.html',
   styleUrl: './my-profile.component.css'
@@ -28,6 +32,22 @@ export class MyProfileComponent implements OnInit {
   password = '';
   confirmPassword = '';
 
+  userType: number | undefined = undefined;
+  isActive = false;
+  clientIds: number[] = [];
+
+  userTypeOptions: BaseModel[] = [];
+  clients: ClientModel[] = [];
+
+  get userTypeName(): string {
+    const found = this.userTypeOptions.find(o => o.id === this.userType);
+    return found?.name ?? (this.userType != null ? String(this.userType) : '—');
+  }
+
+  get assignedClients(): ClientModel[] {
+    return this.clients.filter(c => c.id != null && this.clientIds.includes(c.id));
+  }
+
   get passwordMismatch(): boolean {
     return this.password !== this.confirmPassword;
   }
@@ -36,10 +56,16 @@ export class MyProfileComponent implements OnInit {
     private usersService: UsersService,
     private session: SessionService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private staticListService: StaticListService,
+    private clientService: ClientService,
   ) {}
 
   ngOnInit(): void {
+    this.staticListService.getActive({ listName: E_ListName.UserTypes })
+      .subscribe({ next: (data) => { this.userTypeOptions = data ?? []; this.cdr.detectChanges(); } });
+    this.clientService.getAll()
+      .subscribe({ next: (data) => { this.clients = data ?? []; this.cdr.detectChanges(); } });
     this.loadProfile();
   }
 
@@ -58,6 +84,9 @@ export class MyProfileComponent implements OnInit {
           this.firstName    = user.firstName  ?? '';
           this.lastName     = user.lastName   ?? '';
           this.email        = user.email      ?? '';
+          this.userType     = user.type;
+          this.isActive     = user.isActive   ?? false;
+          this.clientIds    = user.clientIds  ?? [];
           this.password     = '';
           this.confirmPassword = '';
           this.cdr.detectChanges();
@@ -83,6 +112,9 @@ export class MyProfileComponent implements OnInit {
       firstName: this.firstName,
       lastName:  this.lastName,
       email:     this.email,
+      type:      this.userType,
+      isActive:  this.isActive,
+      clientIds: this.clientIds,
       ...(this.password ? { password: this.password } : {})
     };
 

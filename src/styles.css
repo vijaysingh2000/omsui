@@ -79,6 +79,11 @@ html, body {
   flex: 1;
   padding: 28px 32px;
   min-height: 100vh;
+  transition: margin-left 0.25s ease;
+}
+
+body.sidebar-collapsed .oms-main {
+  margin-left: 64px;
 }
 
 /* ── Page header ────────────────────────────────────────────────────────── */

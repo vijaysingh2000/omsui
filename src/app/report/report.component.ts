@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import { ReportService } from '../services/report.service';
 import { MiscService } from '../services/misc.service';
 import { SessionService } from '../services/session.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 import { BaseModel, E_DashboardView, E_UserAccess, Report_Request } from '../services/models';
 
 export interface ReportColumn {
@@ -28,7 +29,7 @@ export interface ReportDefinition {
 
 @Component({
   selector: 'app-report',
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, SidebarComponent],
   templateUrl: './report.component.html',
   styleUrl: './report.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

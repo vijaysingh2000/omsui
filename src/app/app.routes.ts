@@ -6,6 +6,12 @@ import { ReportComponent } from './report/report.component';
 import { PlaceholderComponent } from './placeholder/placeholder.component';
 import { MyProfileComponent } from './my-profile/my-profile.component';
 import { PatientsComponent } from './patients/patients.component';
+import { ClientsComponent } from './clients/clients.component';
+import { DrugsComponent } from './drugs/drugs.component';
+import { InsurancesComponent } from './insurances/insurances.component';
+import { ManufacturerComponent } from './manufacturer/manufacturer.component';
+import { ProvidersComponent } from './providers/providers.component';
+import { UsersComponent } from './users/users.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -18,6 +24,11 @@ export const routes: Routes = [
 	{ path: 'list', component: PlaceholderComponent },
 	{ path: 'batch-payment', component: PlaceholderComponent },
 	{ path: 'invoices', component: PlaceholderComponent },
-	{ path: 'users', component: PlaceholderComponent },
+	{ path: 'users', component: UsersComponent },
+	{ path: 'clients', component: ClientsComponent },
+	{ path: 'drugs', component: DrugsComponent },
+	{ path: 'insurances', component: InsurancesComponent },
+	{ path: 'manufacturer', component: ManufacturerComponent },
+	{ path: 'providers', component: ProvidersComponent },
 	{ path: '**', redirectTo: '' }
 ];

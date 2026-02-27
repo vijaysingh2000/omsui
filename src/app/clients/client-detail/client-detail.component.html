@@ -1,0 +1,155 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" (click)="close()"></div>
+
+<!-- Modal Panel -->
+<div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="clientDetailTitle">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div>
+      <h4 id="clientDetailTitle" class="mb-0">
+        🏢
+        @if (isNew) {
+          New Client
+        } @else if (client) {
+          {{ client.name || 'Client Details' }}
+          <span class="id-badge">ID: {{ clientId }}</span>
+        } @else {
+          Client Details
+        }
+      </h4>
+    </div>
+    <button class="btn-close-x" (click)="close()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- Body -->
+  <div class="detail-body">
+
+    @if (loading) {
+      <div class="text-center py-5 text-muted">
+        <span class="spinner-border spinner-border-sm me-2"></span> Loading client…
+      </div>
+    } @else if (errorMsg && !client) {
+      <div class="alert alert-danger">{{ errorMsg }}</div>
+    } @else if (client) {
+
+      <!-- Error / Success Alerts -->
+      @if (errorMsg) {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+          {{ errorMsg }}
+          <button type="button" class="btn-close" (click)="errorMsg = null"></button>
+        </div>
+      }
+      @if (successMsg) {
+        <div class="alert alert-success">{{ successMsg }}</div>
+      }
+
+      <form (ngSubmit)="save()" #detailForm="ngForm" novalidate>
+
+        <!-- Section: Basic Information -->
+        <div class="form-section">
+          <div class="section-title">🏢 Basic Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Client Name</label>
+              <input type="text" class="form-control form-control-sm" name="name"
+                     [(ngModel)]="client.name" placeholder="Client name" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contact Person</label>
+              <input type="text" class="form-control form-control-sm" name="contactPerson"
+                     [(ngModel)]="client.contactPerson" placeholder="Contact person" />
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control form-control-sm" name="description" rows="2"
+                        [(ngModel)]="client.description" placeholder="Description"></textarea>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select form-select-sm" name="active" [(ngModel)]="client.active">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section: Contact Information -->
+        <div class="form-section">
+          <div class="section-title">📞 Contact Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control form-control-sm" name="email"
+                     [(ngModel)]="client.email" placeholder="Email address" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control form-control-sm" name="phone"
+                     [(ngModel)]="client.phone" placeholder="Phone number" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Section: Address -->
+        <div class="form-section">
+          <div class="section-title">📍 Address</div>
+          <div class="row g-3">
+
+            <div class="col-md-12">
+              <label class="form-label">Street Address</label>
+              <input type="text" class="form-control form-control-sm" name="address"
+                     [(ngModel)]="client.address" placeholder="Street address" />
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">City</label>
+              <input type="text" class="form-control form-control-sm" name="city"
+                     [(ngModel)]="client.city" placeholder="City" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">State</label>
+              <input type="text" class="form-control form-control-sm" name="state"
+                     [(ngModel)]="client.state" placeholder="State" maxlength="2" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">ZIP Code</label>
+              <input type="text" class="form-control form-control-sm" name="zip"
+                     [(ngModel)]="client.zip" placeholder="ZIP code" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="detail-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="close()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-sm btn-primary" [disabled]="saving">
+            @if (saving) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Saving…
+            } @else {
+              💾 Save Changes
+            }
+          </button>
+        </div>
+
+      </form>
+
+    }
+
+  </div>
+
+</div>

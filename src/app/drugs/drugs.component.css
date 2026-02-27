@@ -1,0 +1,76 @@
+:host { display: block; }
+
+.oms-shell {
+  display: flex;
+  min-height: 100vh;
+  background: #f0f2f5;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.oms-main {
+  flex: 1;
+  margin-left: 220px;
+  padding: 28px 32px;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.page-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.oms-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.oms-card-header {
+  background: linear-gradient(90deg, #1a237e, #3949ab);
+  color: #fff;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.oms-card-body { padding: 20px; }
+
+.drug-table thead th {
+  background: #f0f2f5;
+  color: #1a237e;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}
+
+.drug-table tbody tr:hover { background: #eef0fb; }
+
+.item-link {
+  color: #1a237e;
+  font-weight: 700;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.item-link:hover {
+  color: #3949ab;
+  text-decoration: underline;
+}
+
+.mb-3 { margin-bottom: 1rem; }
+.mb-0 { margin-bottom: 0; }
+.d-flex { display: flex; }
+.gap-2 { gap: 0.5rem; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.text-muted { color: #6c757d; }
+.small { font-size: 0.875rem; }

@@ -1,0 +1,94 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" (click)="close()"></div>
+
+<!-- Modal Panel -->
+<div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="drugDetailTitle">
+
+  <!-- Header -->
+  <div class="detail-header">
+    <div>
+      <h4 id="drugDetailTitle" class="mb-0">
+        💊
+        @if (isNew) {
+          New Drug
+        } @else if (drug) {
+          {{ drug.name || 'Drug Details' }}
+          <span class="id-badge">ID: {{ drugId }}</span>
+        } @else {
+          Drug Details
+        }
+      </h4>
+    </div>
+    <button class="btn-close-x" (click)="close()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- Body -->
+  <div class="detail-body">
+
+    @if (loading) {
+      <div class="text-center py-5 text-muted">
+        <span class="spinner-border spinner-border-sm me-2"></span> Loading drug…
+      </div>
+    } @else if (errorMsg && !drug) {
+      <div class="alert alert-danger">{{ errorMsg }}</div>
+    } @else if (drug) {
+
+      @if (errorMsg) {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+          {{ errorMsg }}
+          <button type="button" class="btn-close" (click)="errorMsg = null"></button>
+        </div>
+      }
+      @if (successMsg) {
+        <div class="alert alert-success">{{ successMsg }}</div>
+      }
+
+      <form (ngSubmit)="save()" #detailForm="ngForm" novalidate>
+
+        <div class="form-section">
+          <div class="section-title">💊 Drug Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-8">
+              <label class="form-label">Drug Name <span class="required">*</span></label>
+              <input type="text" class="form-control form-control-sm" name="name"
+                     [(ngModel)]="drug.name" placeholder="Drug name" required />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select class="form-select form-select-sm" name="active" [(ngModel)]="drug.active">
+                <option [ngValue]="true">Active</option>
+                <option [ngValue]="false">Inactive</option>
+              </select>
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Description</label>
+              <textarea class="form-control form-control-sm" name="description" rows="3"
+                        [(ngModel)]="drug.description" placeholder="Description"></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="detail-footer">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="close()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-sm btn-primary" [disabled]="saving">
+            @if (saving) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Saving…
+            } @else {
+              💾 Save
+            }
+          </button>
+        </div>
+
+      </form>
+    }
+
+  </div>
+
+</div>

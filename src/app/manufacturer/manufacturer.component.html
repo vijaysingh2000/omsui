@@ -1,0 +1,93 @@
+<div class="oms-shell">
+  <app-sidebar></app-sidebar>
+  <main class="oms-main">
+
+    <div class="page-header d-flex align-items-center justify-content-between mb-3">
+      <div>
+        <h2 class="page-title mb-0">🏭 Manufacturer</h2>
+        <p class="text-muted small mb-0">Manage and view manufacturer records</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary" (click)="openNew()">＋ New Manufacturer</button>
+        <button class="btn btn-sm btn-outline-primary" (click)="load()" [disabled]="loading">
+          @if (loading) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span> Loading…
+          } @else { ↺ Refresh }
+        </button>
+      </div>
+    </div>
+
+    @if (errorMsg) {
+      <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+        <strong>Error:</strong> {{ errorMsg }}
+        <button type="button" class="btn-close" (click)="errorMsg = null"></button>
+      </div>
+    }
+
+    <div class="oms-card">
+      <div class="oms-card-header d-flex align-items-center justify-content-between">
+        <span>📋 Manufacturer List</span>
+        <span class="badge rounded-pill bg-white text-primary border border-primary px-3">
+          {{ filtered.length }} record(s)
+        </span>
+      </div>
+      <div class="oms-card-body">
+        <div class="mb-3">
+          <input type="text" class="form-control form-control-sm"
+                 placeholder="🔍 Search by name or description…" [(ngModel)]="searchText" />
+        </div>
+
+        @if (loading && manufacturers.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <span class="spinner-border spinner-border-sm me-2"></span> Loading manufacturers…
+          </div>
+        } @else if (filtered.length === 0) {
+          <div class="text-center py-5 text-muted">
+            <div class="display-5 mb-2">🔎</div>
+            <p>No manufacturers found.</p>
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-hover table-sm list-table align-middle">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of filtered; track m.id) {
+                  <tr>
+                    <td>
+                      <a class="item-link" href="javascript:void(0)" (click)="openDetail(m.id)">
+                        {{ m.name || '—' }}
+                      </a>
+                    </td>
+                    <td>{{ m.description || '—' }}</td>
+                    <td>
+                      @if (m.active) {
+                        <span class="badge bg-success">Active</span>
+                      } @else {
+                        <span class="badge bg-secondary">Inactive</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+  </main>
+
+  @if (showDetail) {
+    <app-manufacturer-detail
+      [manufacturerId]="selectedId"
+      (closed)="closeDetail()"
+      (saved)="onDetailSaved()"
+    ></app-manufacturer-detail>
+  }
+</div>

@@ -15,7 +15,7 @@
         <form (ngSubmit)="submit()" #filterForm="ngForm">
           <div class="row g-3 align-items-end">
 
-            <div class="col-12 col-md-5">
+            <div class="col-12 col-md-3">
               <label for="reportSelect" class="form-label fw-semibold small text-uppercase text-muted">Report</label>
               <select id="reportSelect" class="form-select form-select-sm" name="reportSelect"
                       [(ngModel)]="selectedReportKey" [disabled]="reportsLoading">
@@ -29,17 +29,45 @@
               </select>
             </div>
 
-            <div class="col-12 col-md-2">
-              <label for="startDate" class="form-label fw-semibold small text-uppercase text-muted">Start Date</label>
-              <input id="startDate" type="date" class="form-control form-control-sm"
-                     name="startDate" [(ngModel)]="startDate" required />
+            <!-- Filter Mode Toggle -->
+            <div class="col-12 col-md-auto">
+              <label class="form-label fw-semibold small text-uppercase text-muted">Filter By</label>
+              <div class="btn-group btn-group-sm d-flex" role="group" aria-label="Filter mode">
+                <input type="radio" class="btn-check" name="filterMode" id="modeDateRange"
+                       value="dateRange" [(ngModel)]="filterMode" />
+                <label class="btn btn-outline-secondary" for="modeDateRange">Date Range</label>
+                <input type="radio" class="btn-check" name="filterMode" id="modeMonthYear"
+                       value="monthYear" [(ngModel)]="filterMode" />
+                <label class="btn btn-outline-secondary" for="modeMonthYear">Month / Year</label>
+              </div>
             </div>
 
-            <div class="col-12 col-md-2">
-              <label for="endDate" class="form-label fw-semibold small text-uppercase text-muted">End Date</label>
-              <input id="endDate" type="date" class="form-control form-control-sm"
-                     name="endDate" [(ngModel)]="endDate" required />
-            </div>
+            <!-- Date Range inputs -->
+            @if (filterMode === 'dateRange') {
+              <div class="col-12 col-md-2">
+                <label for="startDate" class="form-label fw-semibold small text-uppercase text-muted">Start Date</label>
+                <input id="startDate" type="date" class="form-control form-control-sm"
+                       name="startDate" [(ngModel)]="startDate" required />
+              </div>
+              <div class="col-12 col-md-2">
+                <label for="endDate" class="form-label fw-semibold small text-uppercase text-muted">End Date</label>
+                <input id="endDate" type="date" class="form-control form-control-sm"
+                       name="endDate" [(ngModel)]="endDate" required />
+              </div>
+            }
+
+            <!-- Month / Year selects -->
+            @if (filterMode === 'monthYear') {
+              <div class="col-12 col-md-2">
+                <label for="selMonthYear" class="form-label fw-semibold small text-uppercase text-muted">Month &amp; Year</label>
+                <select id="selMonthYear" class="form-select form-select-sm" name="selMonthYear"
+                        [(ngModel)]="selectedMonthYear">
+                  @for (opt of monthYearOptions; track opt.value) {
+                    <option [ngValue]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+            }
 
             <div class="col-12 col-md-auto d-flex gap-2 align-items-end">
               <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading || filterForm.invalid">

@@ -355,6 +355,28 @@ export class ReportComponent implements OnInit {
   startDate = this.firstDayOfCurrentMonth();
   endDate   = this.lastDayOfCurrentMonth();
 
+  filterMode: 'dateRange' | 'monthYear' = 'monthYear';
+  selectedMonthYear: string = (() => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    return `${y}-${m}`;
+  })();
+
+  readonly monthYearOptions: { label: string; value: string }[] = (() => {
+    const opts: { label: string; value: string }[] = [];
+    const now = new Date();
+    for (let i = 0; i < 36; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const y = d.getFullYear();
+      const m = d.getMonth();
+      const value = `${y}-${String(m + 1).padStart(2, '0')}`;
+      const label = d.toLocaleString('default', { month: 'long', year: 'numeric' });
+      opts.push({ label, value });
+    }
+    return opts;
+  })();
+
   results: any[] = [];
   loading = false;
   errorMsg: string | null = null;
@@ -424,10 +446,20 @@ export class ReportComponent implements OnInit {
   }
 
   private buildRequest(def: ReportDefinition): Report_Request {
+    let startDate: string;
+    let endDate: string;
+    if (this.filterMode === 'monthYear') {
+      const [y, m] = this.selectedMonthYear.split('-').map(Number);
+      startDate = new Date(y, m - 1, 1).toISOString().split('T')[0];
+      endDate   = new Date(y, m,     0).toISOString().split('T')[0];
+    } else {
+      startDate = this.startDate;
+      endDate   = this.endDate;
+    }
     return {
       clientId:      this.session.clientId,
-      startDate:     this.startDate,
-      endDate:       this.endDate,
+      startDate,
+      endDate,
       id:            null,
       guid:          null,
       type:          def.type,

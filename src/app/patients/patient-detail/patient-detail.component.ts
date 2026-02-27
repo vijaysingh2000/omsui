@@ -15,8 +15,7 @@ import { forkJoin } from 'rxjs';
 import { PatientsService } from '../../services/patients.service';
 import { ListService } from '../../services/list.service';
 import { Patient, BaseModel } from '../../services/models';
-import { E_ListName } from '../../services/enum';
-import { GENDER_MAP } from '../patients.component';
+import { E_ListName, GENDER_MAP } from '../../services/enum';
 
 @Component({
   selector: 'app-patient-detail',

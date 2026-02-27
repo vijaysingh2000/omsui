@@ -36,7 +36,7 @@ export class StaticListService {
   }
 
   getAllTasks(): Observable<Tasks[]> {
-    return this.http.get<Tasks[]>(`${BASE_URL}/api/StaticList/GetAllTasks`);
+    return this.http.post<Tasks[]>(`${BASE_URL}/api/StaticList/GetAllTasks`, this.session.withSession({}));
   }
 
   createAllTaskFolders(request: StaticList_Request): Observable<void> {

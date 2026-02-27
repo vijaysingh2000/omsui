@@ -2,19 +2,21 @@ import { Component, ChangeDetectorRef, ChangeDetectionStrategy, OnInit } from '@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { forkJoin } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { finalize, catchError } from 'rxjs/operators';
 import { ReportService } from '../services/report.service';
 import { ClientService } from '../services/client.service';
 import { SessionService } from '../services/session.service';
 import { UsersService } from '../services/users.service';
+import { StaticListService } from '../services/static-list.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { ClientModel, OrderInProgress, Report_Request } from '../services/models';
+import { PatientDetailComponent } from '../patients/patient-detail/patient-detail.component';
+import { ClientModel, OrderInProgress, Report_Request, Tasks } from '../services/models';
 import { E_DashboardView } from '../services/enum';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, RouterLinkActive, FormsModule, CommonModule, SidebarComponent],
+  imports: [RouterLink, RouterLinkActive, FormsModule, CommonModule, SidebarComponent, PatientDetailComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,6 +120,11 @@ export class DashboardComponent implements OnInit {
   errorMsg: string | null = null;
   submitted = false;
 
+  taskMap = new Map<string, string>();
+
+  selectedPatientId: string | null = null;
+  showPatientDetail = false;
+
   sortField: string | null = null;
   sortDir: 'asc' | 'desc' = 'asc';
 
@@ -204,6 +211,7 @@ export class DashboardComponent implements OnInit {
     private reportService: ReportService,
     private clientService: ClientService,
     private usersService: UsersService,
+    private staticListService: StaticListService,
     private session: SessionService,
     private cdr: ChangeDetectorRef,
     private router: Router,
@@ -212,22 +220,33 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.clientsLoading = true;
     forkJoin({
-      clients: this.clientService.getAll(),
-      user: this.usersService.getById({ id: this.session.userId }),
+      clients: this.clientService.getAll().pipe(catchError(() => of([]))),
+      user: this.usersService.getById({ id: this.session.userId }).pipe(catchError(() => of(null))),
+      tasks: this.staticListService.getAllTasks().pipe(catchError(() => of([]))),
     })
       .pipe(finalize(() => { this.clientsLoading = false; this.cdr.detectChanges(); }))
       .subscribe({
-        next: ({ clients, user }) => {
+        next: ({ clients, user, tasks }) => {
           const allClients = clients ?? [];
           const assigned = user?.clientIds;
           this.clients = assigned?.length
             ? allClients.filter(c => c.id != null && assigned.includes(c.id))
             : allClients;
+          // Auto-select first client if none selected or current selection is not in list
+          if (!this.selectedClientId || !this.clients.some(c => c.id === this.selectedClientId)) {
+            this.selectedClientId = this.clients[0]?.id;
+          }
+          this.taskMap = new Map((tasks ?? []).filter(t => t.code).map(t => [t.code!, t.name ?? t.code!]));
           this.cdr.detectChanges();
+          this.submit();
         },
-        error: () => { this.cdr.detectChanges(); },
+        error: () => { this.cdr.detectChanges(); this.submit(); },
       });
-    this.submit();
+  }
+
+  taskName(code: string | null | undefined): string {
+    if (!code) return '';
+    return this.taskMap.get(code) ?? code;
   }
 
   submit(): void {
@@ -256,6 +275,23 @@ export class DashboardComponent implements OnInit {
   logout(): void {
     this.session.clearSession();
     this.router.navigate(['/login']);
+  }
+
+  openPatientDetail(patientId: string | undefined): void {
+    if (!patientId) return;
+    this.selectedPatientId = patientId;
+    this.showPatientDetail = true;
+    this.cdr.detectChanges();
+  }
+
+  closePatientDetail(): void {
+    this.showPatientDetail = false;
+    this.selectedPatientId = null;
+    this.cdr.detectChanges();
+  }
+
+  onPatientDetailSaved(): void {
+    this.closePatientDetail();
   }
 
   get totalBalance(): number {

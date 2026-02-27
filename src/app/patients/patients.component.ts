@@ -11,15 +11,11 @@ import { finalize } from 'rxjs/operators';
 
 import { PatientsService } from '../services/patients.service';
 import { Patient } from '../services/models';
+import { GENDER_MAP } from '../services/enum';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { PatientDetailComponent } from './patient-detail/patient-detail.component';
 
-export const GENDER_MAP: Record<number, string> = {
-  0: 'Unknown',
-  1: 'Male',
-  2: 'Female',
-  3: 'Other',
-};
+export { GENDER_MAP };
 
 @Component({
   selector: 'app-patients',

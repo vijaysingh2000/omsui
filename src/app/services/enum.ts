@@ -48,3 +48,10 @@ export enum E_OrderAge {
   Zero = 1,
   ALL = 2,
 }
+
+export const GENDER_MAP: Record<number, string> = {
+  0: 'Unknown',
+  1: 'Male',
+  2: 'Female',
+  3: 'Other',
+};

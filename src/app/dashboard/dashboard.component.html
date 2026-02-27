@@ -12,40 +12,36 @@
         <span>🔍 Filter Orders</span>
       </div>
       <div class="oms-card-body">
-        <form (ngSubmit)="submit()" #filterForm="ngForm">
+        <form>
           <div class="row g-3 align-items-end">
 
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-auto">
+              <label class="form-label fw-semibold small text-uppercase text-muted letter-spacing d-block">View</label>
+              <div class="view-toggle-group" role="group" aria-label="Dashboard View">
+                @for (opt of dashboardViewOptions; track opt.value) {
+                  <input type="radio" class="btn-check" name="dashboardView"
+                         [id]="'view_' + opt.value"
+                         [value]="opt.value"
+                         [(ngModel)]="selectedDashboardView"
+                         (ngModelChange)="submit()"
+                         autocomplete="off">
+                  <label class="view-toggle-btn" [for]="'view_' + opt.value">{{ opt.label }}</label>
+                }
+              </div>
+            </div>
+
+            <div class="col-12 col-md-3 ms-auto">
               <label for="clientSelect" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Client</label>
               <select id="clientSelect" class="form-select form-select-sm" name="clientSelect"
-                      [(ngModel)]="selectedClientId" [disabled]="clientsLoading">
-                <option [ngValue]="undefined">
-                  @if (clientsLoading) { Loading... } @else { — All Clients — }
-                </option>
+                      [(ngModel)]="selectedClientId" [disabled]="clientsLoading"
+                      (ngModelChange)="submit()">
+                @if (clientsLoading) {
+                  <option [ngValue]="undefined" disabled>Loading...</option>
+                }
                 @for (c of clients; track c.id) {
                   <option [ngValue]="c.id">{{ c.name }}</option>
                 }
               </select>
-            </div>
-
-            <div class="col-12 col-md-3">
-              <label for="dashboardView" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">View</label>
-              <select id="dashboardView" class="form-select form-select-sm" name="dashboardView" [(ngModel)]="selectedDashboardView">
-                @for (opt of dashboardViewOptions; track opt.value) {
-                  <option [ngValue]="opt.value">{{ opt.label }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="col-12 col-md-3 d-grid">
-              <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading">
-                @if (loading) {
-                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Loading...
-                } @else {
-                  🔍 Search
-                }
-              </button>
             </div>
 
           </div>
@@ -116,14 +112,20 @@
                       <td class="text-muted small">{{ i + 1 }}</td>
                       <td><span class="fw-semibold text-primary">{{ row.orderNumber ?? '—' }}</span></td>
                       <td class="fw-semibold">{{ row.patientName ?? '—' }}</td>
-                      <td><span class="badge text-bg-light text-dark border">{{ row.mrn ?? '—' }}</span></td>
+                      <td>
+                        @if (row.patientId) {
+                          <a class="mrn-link" href="javascript:void(0)" (click)="openPatientDetail(row.patientId)">{{ row.mrn ?? row.patientId }}</a>
+                        } @else {
+                          <span class="text-muted">{{ row.mrn ?? '\u2014' }}</span>
+                        }
+                      </td>
                       <td>{{ row.drugName ?? '—' }}</td>
                       <td class="small text-muted">{{ row.dos ? (row.dos | date:'MM/dd/yyyy') : '—' }}</td>
                       <td class="small text-muted">{{ row.estimatedDeliveryDate ? (row.estimatedDeliveryDate | date:'MM/dd/yyyy') : '—' }}</td>
                       <td class="small">{{ row.insuranceName ?? '—' }}</td>
                       <td>
                         @if (row.currentTaskCode) {
-                          <span class="badge text-bg-info rounded-pill">{{ row.currentTaskCode }}</span>
+                          <span class="badge text-bg-info rounded-pill">{{ taskName(row.currentTaskCode) }}</span>
                         } @else {
                           <span class="text-muted">—</span>
                         }
@@ -175,4 +177,13 @@
     }
 
   </main>
+
+  @if (showPatientDetail && selectedPatientId) {
+    <app-patient-detail
+      [patientId]="selectedPatientId"
+      (closed)="closePatientDetail()"
+      (saved)="onPatientDetailSaved()"
+    ></app-patient-detail>
+  }
+
 </div>

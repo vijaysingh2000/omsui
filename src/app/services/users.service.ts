@@ -11,6 +11,10 @@ const BASE_URL = config.apiBaseUrl;
 export class UsersService {
   constructor(private http: HttpClient, private session: SessionService) {}
 
+  validate(request: Users_Request): Observable<boolean> {
+    return this.http.post<boolean>(`${BASE_URL}/api/Users/Validate`, this.session.withSession(request));
+  }
+
   getByLoginId(request: Users_Request): Observable<User> {
     return this.http.post<User>(`${BASE_URL}/api/Users/GetByLoginId`, this.session.withSession(request));
   }

@@ -2,10 +2,12 @@ import { Component, ChangeDetectorRef, ChangeDetectionStrategy, OnInit } from '@
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ReportService } from '../services/report.service';
 import { ClientService } from '../services/client.service';
 import { SessionService } from '../services/session.service';
+import { UsersService } from '../services/users.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ClientModel, OrderInProgress, Report_Request } from '../services/models';
 import { E_DashboardView } from '../services/enum';
@@ -201,6 +203,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private reportService: ReportService,
     private clientService: ClientService,
+    private usersService: UsersService,
     private session: SessionService,
     private cdr: ChangeDetectorRef,
     private router: Router,
@@ -208,11 +211,18 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.clientsLoading = true;
-    this.clientService.getAll()
+    forkJoin({
+      clients: this.clientService.getAll(),
+      user: this.usersService.getById({ id: this.session.userId }),
+    })
       .pipe(finalize(() => { this.clientsLoading = false; this.cdr.detectChanges(); }))
       .subscribe({
-        next: (data) => {
-          this.clients = data ?? [];
+        next: ({ clients, user }) => {
+          const allClients = clients ?? [];
+          const assigned = user?.clientIds;
+          this.clients = assigned?.length
+            ? allClients.filter(c => c.id != null && assigned.includes(c.id))
+            : allClients;
           this.cdr.detectChanges();
         },
         error: () => { this.cdr.detectChanges(); },

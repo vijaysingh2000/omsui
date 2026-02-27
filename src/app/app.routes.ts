@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { ReportComponent } from './report/report.component';
 import { PlaceholderComponent } from './placeholder/placeholder.component';
 import { MyProfileComponent } from './my-profile/my-profile.component';
+import { PatientsComponent } from './patients/patients.component';
 
 export const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -12,7 +13,7 @@ export const routes: Routes = [
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'reports', component: ReportComponent },
 	{ path: 'my-profile', component: MyProfileComponent },
-	{ path: 'patients', component: PlaceholderComponent },
+	{ path: 'patients', component: PatientsComponent },
 	{ path: 'call-list', component: PlaceholderComponent },
 	{ path: 'list', component: PlaceholderComponent },
 	{ path: 'batch-payment', component: PlaceholderComponent },

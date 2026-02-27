@@ -1,0 +1,297 @@
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" (click)="close()"></div>
+
+<!-- Modal Panel -->
+<div class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="patientDetailTitle">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="detail-header">
+    <div>
+      <h4 id="patientDetailTitle" class="mb-0">
+        🧑‍⚕️
+        @if (patient) {
+          {{ patient.firstName || '' }} {{ patient.lastName || '' }}
+          <span class="mrn-badge">MRN: {{ patient.mrn || '—' }}</span>
+        } @else {
+          Patient Details
+        }
+      </h4>
+    </div>
+    <button class="btn-close-x" (click)="close()" aria-label="Close">✕</button>
+  </div>
+
+  <!-- ── Body ──────────────────────────────────────────────────────────────── -->
+  <div class="detail-body">
+
+    @if (loading) {
+      <div class="text-center py-5 text-muted">
+        <span class="spinner-border spinner-border-sm me-2"></span> Loading patient…
+      </div>
+    } @else if (errorMsg && !patient) {
+      <div class="alert alert-danger">{{ errorMsg }}</div>
+    } @else if (patient) {
+
+      <!-- Error / Success Alerts -->
+      @if (errorMsg) {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+          {{ errorMsg }}
+          <button type="button" class="btn-close" (click)="errorMsg = null"></button>
+        </div>
+      }
+      @if (successMsg) {
+        <div class="alert alert-success">{{ successMsg }}</div>
+      }
+
+      <form (ngSubmit)="save()" #detailForm="ngForm" novalidate>
+
+        <!-- ── Section: Basic Information ──────────────────────────────── -->
+        <div class="form-section">
+          <div class="section-title">👤 Basic Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-3">
+              <label class="form-label">MRN</label>
+              <input type="text" class="form-control form-control-sm" name="mrn"
+                     [(ngModel)]="patient.mrn" placeholder="MRN" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">First Name</label>
+              <input type="text" class="form-control form-control-sm" name="firstName"
+                     [(ngModel)]="patient.firstName" placeholder="First name" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Last Name</label>
+              <input type="text" class="form-control form-control-sm" name="lastName"
+                     [(ngModel)]="patient.lastName" placeholder="Last name" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" class="form-control form-control-sm" name="dob"
+                     [ngModel]="formatDobForInput(patient.dob)"
+                     (ngModelChange)="onDobChange($event)" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Gender</label>
+              <select class="form-select form-select-sm" name="gender" [(ngModel)]="patient.gender">
+                @for (g of genderOptions; track g.value) {
+                  <option [ngValue]="g.value">{{ g.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Case Number</label>
+              <input type="text" class="form-control form-control-sm" name="caseNumber"
+                     [(ngModel)]="patient.caseNumber" placeholder="Case #" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Section: Contact Information ────────────────────────────── -->
+        <div class="form-section">
+          <div class="section-title">📞 Contact Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control form-control-sm" name="email"
+                     [(ngModel)]="patient.email" placeholder="email@example.com" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Phone 1</label>
+              <input type="tel" class="form-control form-control-sm" name="phone1"
+                     [(ngModel)]="patient.phone1" placeholder="(555) 000-0000" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Phone 2</label>
+              <input type="tel" class="form-control form-control-sm" name="phone2"
+                     [(ngModel)]="patient.phone2" placeholder="(555) 000-0000" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Preferred Contact</label>
+              <select class="form-select form-select-sm" name="preferredContactMethod"
+                      [(ngModel)]="patient.preferredContactMethod">
+                @for (c of contactMethods; track c.value) {
+                  <option [ngValue]="c.value">{{ c.label }}</option>
+                }
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Section: Address ─────────────────────────────────────────── -->
+        <div class="form-section">
+          <div class="section-title">🏠 Address</div>
+          <div class="row g-3">
+
+            <div class="col-md-5">
+              <label class="form-label">Address Line 1</label>
+              <input type="text" class="form-control form-control-sm" name="address1"
+                     [(ngModel)]="patient.address1" placeholder="Street address" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Address Line 2</label>
+              <input type="text" class="form-control form-control-sm" name="address2"
+                     [(ngModel)]="patient.address2" placeholder="Apt, suite, etc." />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Address Line 3</label>
+              <input type="text" class="form-control form-control-sm" name="address3"
+                     [(ngModel)]="patient.address3" placeholder="City, state, zip" />
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Section: Insurance ───────────────────────────────────────── -->
+        <div class="form-section">
+          <div class="section-title">🏥 Insurance</div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-7">
+              <label class="form-label">Primary Insurance</label>
+              <select class="form-select form-select-sm" name="insuranceId"
+                      [(ngModel)]="patient.insuranceId"
+                      (ngModelChange)="onInsuranceChange($event)"
+                      [disabled]="insurancesLoading">
+                <option [ngValue]="undefined">
+                  @if (insurancesLoading) { Loading… } @else { — Select Insurance — }
+                </option>
+                @for (ins of insurances; track ins.id) {
+                  <option [ngValue]="ins.id">{{ ins.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">Insurance #</label>
+              <input type="text" class="form-control form-control-sm" name="insuranceNumber"
+                     [(ngModel)]="patient.insuranceNumber" placeholder="Policy number" />
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label">Secondary Insurance</label>
+              <select class="form-select form-select-sm" name="secondaryInsuranceId"
+                      [(ngModel)]="patient.secondaryInsuranceId"
+                      (ngModelChange)="onSecondaryInsuranceChange($event)"
+                      [disabled]="insurancesLoading">
+                <option [ngValue]="undefined">
+                  @if (insurancesLoading) { Loading… } @else { — Select Insurance — }
+                </option>
+                @for (ins of insurances; track ins.id) {
+                  <option [ngValue]="ins.id">{{ ins.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">Secondary #</label>
+              <input type="text" class="form-control form-control-sm" name="secondaryInsuranceNumber"
+                     [(ngModel)]="patient.secondaryInsuranceNumber" placeholder="Policy number" />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── Section: Clinical / Medical ─────────────────────────────── -->
+        <div class="form-section">
+          <div class="section-title">🩺 Clinical Information</div>
+          <div class="row g-3">
+
+            <div class="col-md-3">
+              <label class="form-label">SPA Required</label>
+              <select class="form-select form-select-sm" name="spaRequired" [(ngModel)]="patient.spaRequired">
+                @for (s of spaOptions; track s.value) {
+                  <option [ngValue]="s.value">{{ s.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">CCSGHPP</label>
+              <input type="text" class="form-control form-control-sm" name="ccsghpp"
+                     [(ngModel)]="patient.ccsghpp" placeholder="CCSGHPP" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">CCSGHPP Date</label>
+              <input type="date" class="form-control form-control-sm" name="ccsghppDate"
+                     [ngModel]="formatDobForInput(patient.ccsghppDate)"
+                     (ngModelChange)="onCcsghppDateChange($event)" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Access</label>
+              <input type="text" class="form-control form-control-sm" name="access"
+                     [(ngModel)]="patient.access" placeholder="Access info" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Diagnosis</label>
+              <textarea class="form-control form-control-sm" name="diagnosis" rows="2"
+                        [(ngModel)]="patient.diagnosis" placeholder="Diagnosis details"></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Allergies</label>
+              <textarea class="form-control form-control-sm" name="allergies" rows="2"
+                        [(ngModel)]="patient.allergies" placeholder="Allergies"></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Other Medical Conditions</label>
+              <textarea class="form-control form-control-sm" name="otherMedicalConditions" rows="2"
+                        [(ngModel)]="patient.otherMedicalConditions" placeholder="Other conditions"></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Guardian Details</label>
+              <textarea class="form-control form-control-sm" name="guardianDetails" rows="2"
+                        [(ngModel)]="patient.guardianDetails" placeholder="Guardian information"></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Notes</label>
+              <textarea class="form-control form-control-sm" name="notes" rows="3"
+                        [(ngModel)]="patient.notes" placeholder="General notes…"></textarea>
+            </div>
+
+          </div>
+        </div>
+
+      </form>
+
+    }
+
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────────────────────────────── -->
+  <div class="detail-footer">
+    <button type="button" class="btn btn-secondary btn-sm" (click)="close()" [disabled]="saving">
+      ✕ Close
+    </button>
+    @if (patient) {
+      <button type="button" class="btn btn-primary btn-sm" (click)="save()" [disabled]="saving || loading">
+        @if (saving) {
+          <span class="spinner-border spinner-border-sm me-1" role="status"></span> Saving…
+        } @else {
+          💾 Save
+        }
+      </button>
+    }
+  </div>
+
+</div>

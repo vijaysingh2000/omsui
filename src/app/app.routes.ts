@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ReportComponent } from './report/report.component';
@@ -14,7 +13,7 @@ import { ProvidersComponent } from './providers/providers.component';
 import { UsersComponent } from './users/users.component';
 
 export const routes: Routes = [
-	{ path: '', component: HomeComponent },
+	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 	{ path: 'login', component: LoginComponent },
 	{ path: 'dashboard', component: DashboardComponent },
 	{ path: 'reports', component: ReportComponent },
@@ -30,5 +29,5 @@ export const routes: Routes = [
 	{ path: 'insurances', component: InsurancesComponent },
 	{ path: 'manufacturer', component: ManufacturerComponent },
 	{ path: 'providers', component: ProvidersComponent },
-	{ path: '**', redirectTo: '' }
+	{ path: '**', redirectTo: 'login' }
 ];

@@ -125,6 +125,51 @@ export class DashboardComponent implements OnInit {
   selectedPatientId: string | null = null;
   showPatientDetail = false;
 
+  searchText = '';
+
+  numFilters = {
+    billed:   { op: '>=', value: null as number | null },
+    payments: { op: '>=', value: null as number | null },
+    balance:  { op: '>=', value: null as number | null },
+  };
+
+  readonly numOperators = ['>=', '>', '=', '<', '<='];
+
+  clearNumFilter(key: 'billed' | 'payments' | 'balance'): void {
+    this.numFilters[key].value = null;
+  }
+
+  amountFiltersExpanded = true;
+  filterOrdersExpanded  = true;
+  resultsExpanded       = true;
+
+  toggleFilterOrders(): void  { this.filterOrdersExpanded  = !this.filterOrdersExpanded;  this.cdr.detectChanges(); }
+  toggleAmountFilters(): void { this.amountFiltersExpanded = !this.amountFiltersExpanded; this.cdr.detectChanges(); }
+  toggleResults(): void       { this.resultsExpanded       = !this.resultsExpanded;       this.cdr.detectChanges(); }
+
+  get hasNumFilters(): boolean {
+    return Object.values(this.numFilters).some(f => f.value !== null);
+  }
+
+  clearAllNumFilters(): void {
+    this.numFilters.billed.value   = null;
+    this.numFilters.payments.value = null;
+    this.numFilters.balance.value  = null;
+  }
+
+  private applyNumericFilter(val: number | null | undefined, op: string, threshold: number | null): boolean {
+    if (threshold === null) return true;
+    const v = val ?? 0;
+    switch (op) {
+      case '>':  return v > threshold;
+      case '<':  return v < threshold;
+      case '=':  return v === threshold;
+      case '>=': return v >= threshold;
+      case '<=': return v <= threshold;
+      default:   return true;
+    }
+  }
+
   sortField: string | null = null;
   sortDir: 'asc' | 'desc' = 'asc';
 
@@ -164,11 +209,23 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  get filteredResults(): OrderInProgress[] {
+    const q = this.searchText.trim().toLowerCase();
+    return this.results.filter(r => {
+      if (q && ![r.orderNumber, r.patientName, r.mrn, r.drugName, r.insuranceName, r.currentTaskCode, this.taskName(r.currentTaskCode)]
+          .some(v => v?.toLowerCase().includes(q))) return false;
+      if (!this.applyNumericFilter(r.totalAmountBilled, this.numFilters.billed.op,   this.numFilters.billed.value))   return false;
+      if (!this.applyNumericFilter(r.totalPayments,     this.numFilters.payments.op, this.numFilters.payments.value)) return false;
+      if (!this.applyNumericFilter(r.totalBalance,      this.numFilters.balance.op,  this.numFilters.balance.value))  return false;
+      return true;
+    });
+  }
+
   get sortedResults(): OrderInProgress[] {
-    if (!this.sortField) return this.results;
+    if (!this.sortField) return this.filteredResults;
     const field = this.sortField as keyof OrderInProgress;
     const dir = this.sortDir === 'asc' ? 1 : -1;
-    return [...this.results].sort((a, b) => {
+    return [...this.filteredResults].sort((a, b) => {
       const av = a[field] ?? '';
       const bv = b[field] ?? '';
       if (av < bv) return -dir;
@@ -295,14 +352,14 @@ export class DashboardComponent implements OnInit {
   }
 
   get totalBalance(): number {
-    return this.results.reduce((sum, r) => sum + (r.totalBalance ?? 0), 0);
+    return this.filteredResults.reduce((sum, r) => sum + (r.totalBalance ?? 0), 0);
   }
 
   get totalAmountBilled(): number {
-    return this.results.reduce((sum, r) => sum + (r.totalAmountBilled ?? 0), 0);
+    return this.filteredResults.reduce((sum, r) => sum + (r.totalAmountBilled ?? 0), 0);
   }
 
   get totalPayments(): number {
-    return this.results.reduce((sum, r) => sum + (r.totalPayments ?? 0), 0);
+    return this.filteredResults.reduce((sum, r) => sum + (r.totalPayments ?? 0), 0);
   }
 }

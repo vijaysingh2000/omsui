@@ -43,7 +43,7 @@
   display: flex;
   min-height: 100vh;
   background: #f0f2f5;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────────────────── */
@@ -266,6 +266,15 @@
 }
 .th-sortable:hover { background: #bbc0e8 !important; }
 .th-sorted { background: #adb5d6 !important; }
+
+/* Allow Task badge to wrap */
+.oms-table td .badge {
+  white-space: normal;
+  word-break: break-word;
+  max-width: 120px;
+  display: inline-block;
+}
+
 .sort-icon {
   font-size: 0.65rem;
   margin-left: 5px;
@@ -275,6 +284,15 @@
 
 /* ── Misc ───────────────────────────────────────────────────────────────────── */
 .letter-spacing { letter-spacing: 0.06em; }
+
+/* ── Numeric operator select ────────────────────────────────────────────────── */
+.num-op-select {
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding-left: 4px;
+  padding-right: 4px;
+  text-align: center;
+}
 
 /* ── MRN Link ────────────────────────────────────────────────────────────────── */
 .mrn-link {

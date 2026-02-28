@@ -8,12 +8,22 @@
 
     <!-- Filter Card -->
     <div class="oms-card mb-4">
-      <div class="oms-card-header">
-        <span>&#x1F50D; Run a Report</span>
+      <div class="oms-card-header d-flex justify-content-between align-items-center" style="cursor:pointer;user-select:none;"
+           (click)="toggleFilter()">
+        <span>
+          <span class="me-2" style="display:inline-block;transition:transform .2s;"
+                [style.transform]="filterExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'">&#9660;</span>
+          &#x1F50D; Run a Report
+        </span>
+        <button class="btn btn-sm btn-outline-light py-0 px-2" type="button"
+                (click)="$event.stopPropagation(); toggleFilter()">
+          {{ filterExpanded ? '&#8863; Collapse' : '&#8862; Expand' }}
+        </button>
       </div>
-      <div class="oms-card-body">
-        <form (ngSubmit)="submit()" #filterForm="ngForm">
-          <div class="row g-3 align-items-end">
+      @if (filterExpanded) {
+        <div class="oms-card-body">
+          <form (ngSubmit)="submit()" #filterForm="ngForm">
+            <div class="row g-3 align-items-end">
 
             <div class="col-12 col-md-3">
               <label for="reportSelect" class="form-label fw-semibold small text-uppercase text-muted">Report</label>
@@ -86,8 +96,9 @@
             </div>
 
           </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      }
     </div>
 
     <!-- Error Alert -->
@@ -101,11 +112,22 @@
     <!-- Results -->
     @if (submitted && !loading) {
       <div class="oms-card">
-        <div class="oms-card-header">
-          <span>&#x1F4CB; {{ displayedReport?.label }}</span>
-          <span class="badge rounded-pill bg-white text-primary border border-primary px-3">{{ results.length }} record(s)</span>
+        <div class="oms-card-header d-flex justify-content-between align-items-center" style="cursor:pointer;user-select:none;"
+             (click)="toggleResults()">
+          <span>
+            <span class="me-2" style="display:inline-block;transition:transform .2s;"
+                  [style.transform]="resultsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'">&#9660;</span>
+            &#x1F4CB; {{ displayedReport?.label }}
+          </span>
+          <div class="d-flex align-items-center gap-2" (click)="$event.stopPropagation()">
+            <span class="badge rounded-pill bg-white text-primary border border-primary px-3">{{ results.length }} record(s)</span>
+            <button class="btn btn-sm btn-outline-light py-0 px-2" type="button" (click)="toggleResults()">
+              {{ resultsExpanded ? '&#8863; Collapse' : '&#8862; Expand' }}
+            </button>
+          </div>
         </div>
 
+        @if (resultsExpanded) {
         @if (results.length === 0) {
           <div class="oms-card-body text-center py-5">
             <div class="display-4 mb-3">&#x1F50E;</div>
@@ -178,6 +200,7 @@
               }
             </table>
           </div>
+        }
         }
       </div>
     }

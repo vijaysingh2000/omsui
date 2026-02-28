@@ -4,7 +4,11 @@ html, body {
   margin: 0;
   padding: 0;
   background: #f0f2f5;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-optical-sizing: auto;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ══ Shared Shell Layout ══════════════════════════════════════════════════ */
@@ -12,7 +16,7 @@ html, body {
   display: flex;
   min-height: 100vh;
   background: #f0f2f5;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 /* ── Sidebar ────────────────────────────────────────────────────────────── */
@@ -147,6 +151,9 @@ body.sidebar-collapsed .oms-main {
   padding: 10px 14px;
   border-bottom: 1px solid #eee;
   vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.55;
 }
 .table-totals-row td {
   background: #f0f2f5;

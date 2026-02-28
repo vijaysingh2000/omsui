@@ -8,45 +8,104 @@
 
     <!-- Filter Card -->
     <div class="oms-card mb-4">
-      <div class="oms-card-header">
-        <span>🔍 Filter Orders</span>
+      <div class="oms-card-header d-flex justify-content-between align-items-center" style="cursor:pointer;user-select:none;"
+           (click)="toggleFilterOrders()">
+        <span>
+          <span class="me-2" style="display:inline-block;transition:transform .2s;"
+                [style.transform]="filterOrdersExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'">▼</span>
+          🔍 Filter Orders
+        </span>
+        <div class="d-flex gap-2 align-items-center" (click)="$event.stopPropagation()">
+          @if (hasNumFilters) {
+            <button class="btn btn-sm btn-outline-light py-0 px-2" type="button" (click)="clearAllNumFilters()">✕ Clear Amounts</button>
+          }
+          <button class="btn btn-sm btn-outline-light py-0 px-2" type="button"
+                  (click)="$event.stopPropagation(); toggleFilterOrders()">
+            {{ filterOrdersExpanded ? '⊟ Collapse' : '⊞ Expand' }}
+          </button>
+        </div>
       </div>
-      <div class="oms-card-body">
-        <form>
-          <div class="row g-3 align-items-end">
+      @if (filterOrdersExpanded) {
+        <div class="oms-card-body">
+          <form>
+            <!-- Row 1: View / Search / Client -->
+            <div class="row g-3 align-items-end mb-2">
 
-            <div class="col-12 col-md-auto">
-              <label class="form-label fw-semibold small text-uppercase text-muted letter-spacing d-block">View</label>
-              <div class="view-toggle-group" role="group" aria-label="Dashboard View">
-                @for (opt of dashboardViewOptions; track opt.value) {
-                  <input type="radio" class="btn-check" name="dashboardView"
-                         [id]="'view_' + opt.value"
-                         [value]="opt.value"
-                         [(ngModel)]="selectedDashboardView"
-                         (ngModelChange)="submit()"
-                         autocomplete="off">
-                  <label class="view-toggle-btn" [for]="'view_' + opt.value">{{ opt.label }}</label>
-                }
+              <div class="col-12 col-md-auto">
+                <label class="form-label fw-semibold small text-uppercase text-muted letter-spacing d-block">View</label>
+                <div class="view-toggle-group" role="group" aria-label="Dashboard View">
+                  @for (opt of dashboardViewOptions; track opt.value) {
+                    <input type="radio" class="btn-check" name="dashboardView"
+                           [id]="'view_' + opt.value"
+                           [value]="opt.value"
+                           [(ngModel)]="selectedDashboardView"
+                           (ngModelChange)="submit()"
+                           autocomplete="off">
+                    <label class="view-toggle-btn" [for]="'view_' + opt.value">{{ opt.label }}</label>
+                  }
+                </div>
               </div>
+
+              <div class="col-12 col-md">
+                <label for="searchText" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Search</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">🔎</span>
+                  <input id="searchText" type="text" class="form-control form-control-sm"
+                         placeholder="Order #, patient, drug, insurance, task…"
+                         [(ngModel)]="searchText" name="searchText">
+                  @if (searchText) {
+                    <button class="btn btn-outline-secondary" type="button" (click)="searchText = ''" title="Clear">✕</button>
+                  }
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label for="clientSelect" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Client</label>
+                <select id="clientSelect" class="form-select form-select-sm" name="clientSelect"
+                        [(ngModel)]="selectedClientId" [disabled]="clientsLoading"
+                        (ngModelChange)="submit()">
+                  @if (clientsLoading) {
+                    <option [ngValue]="undefined" disabled>Loading...</option>
+                  }
+                  @for (c of clients; track c.id) {
+                    <option [ngValue]="c.id">{{ c.name }}</option>
+                  }
+                </select>
+              </div>
+
             </div>
 
-            <div class="col-12 col-md-3 ms-auto">
-              <label for="clientSelect" class="form-label fw-semibold small text-uppercase text-muted letter-spacing">Client</label>
-              <select id="clientSelect" class="form-select form-select-sm" name="clientSelect"
-                      [(ngModel)]="selectedClientId" [disabled]="clientsLoading"
-                      (ngModelChange)="submit()">
-                @if (clientsLoading) {
-                  <option [ngValue]="undefined" disabled>Loading...</option>
-                }
-                @for (c of clients; track c.id) {
-                  <option [ngValue]="c.id">{{ c.name }}</option>
-                }
-              </select>
+            <!-- Row 2: Amount Filters (collapsible) -->
+            <div class="border-top pt-2 mt-1">
+              @if (amountFiltersExpanded) {
+                <div class="row g-3 align-items-end">
+                  @for (nf of [{key:'billed',label:'Billed',model:numFilters.billed},{key:'payments',label:'Payments',model:numFilters.payments},{key:'balance',label:'Balance',model:numFilters.balance}]; track nf.key) {
+                    <div class="col-12 col-sm-6 col-md-4">
+                      <label class="form-label fw-semibold small text-uppercase text-muted letter-spacing">{{ nf.label }}</label>
+                      <div class="input-group input-group-sm">
+                        <select class="form-select form-select-sm num-op-select" style="max-width:62px;flex:0 0 62px;"
+                                [(ngModel)]="nf.model.op" [name]="'op_' + nf.key">
+                          @for (op of numOperators; track op) {
+                            <option [value]="op">{{ op }}</option>
+                          }
+                        </select>
+                        <input type="number" class="form-control form-control-sm"
+                               [(ngModel)]="nf.model.value" [name]="'val_' + nf.key"
+                               placeholder="Amount">
+                        @if (nf.model.value !== null) {
+                          <button class="btn btn-outline-secondary" type="button"
+                                  (click)="nf.model.value = null" title="Clear">✕</button>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
             </div>
 
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      }
     </div>
 
     <!-- Error Alert -->
@@ -60,121 +119,134 @@
     <!-- Results -->
     @if (submitted && !loading) {
       <div class="oms-card">
-        <div class="oms-card-header d-flex justify-content-between align-items-center">
-          <span>📋 Results</span>
-          <div class="d-flex align-items-center gap-2">
+        <div class="oms-card-header d-flex justify-content-between align-items-center" style="cursor:pointer;user-select:none;"
+             (click)="toggleResults()">
+          <span>
+            <span class="me-2" style="display:inline-block;transition:transform .2s;"
+                  [style.transform]="resultsExpanded ? 'rotate(0deg)' : 'rotate(-90deg)'">▼</span>
+            📋 Results
+          </span>
+          <div class="d-flex align-items-center gap-2" (click)="$event.stopPropagation()">
             @if (results.length > 0) {
               <button class="btn btn-outline-secondary btn-xs py-0 px-2" style="font-size:.75rem;color:#fff;border-color:#fff;" (click)="expandAll()" type="button">⊞ Expand All</button>
               <button class="btn btn-outline-secondary btn-xs py-0 px-2" style="font-size:.75rem;color:#fff;border-color:#fff;" (click)="collapseAll()" type="button">⊟ Collapse All</button>
             }
-            <span class="badge rounded-pill bg-white text-primary border border-primary px-3">{{ results.length }} record(s)</span>
+            <span class="badge rounded-pill bg-white text-primary border border-primary px-3">
+              {{ filteredResults.length }}{{ filteredResults.length !== results.length ? ' / ' + results.length : '' }} record(s)
+            </span>
+            <button class="btn btn-sm btn-outline-light py-0 px-2" type="button"
+                    (click)="toggleResults()">
+              {{ resultsExpanded ? '⊟ Collapse' : '⊞ Expand' }}
+            </button>
           </div>
         </div>
 
-        @if (results.length === 0) {
-          <div class="oms-card-body text-center py-5">
-            <div class="display-4 mb-3">🔎</div>
-            <h5 class="text-muted">No records found</h5>
-            <p class="text-muted small">Try adjusting your filters and search again.</p>
-          </div>
-        } @else {
-          <div class="table-responsive">
-            <table class="table oms-table mb-0 align-middle">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th class="th-sortable" (click)="sortBy('orderNumber')" [class.th-sorted]="sortField==='orderNumber'">Order # <span class="sort-icon">{{ sortField==='orderNumber' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('patientName')" [class.th-sorted]="sortField==='patientName'">Patient <span class="sort-icon">{{ sortField==='patientName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('mrn')" [class.th-sorted]="sortField==='mrn'">MRN <span class="sort-icon">{{ sortField==='mrn' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('drugName')" [class.th-sorted]="sortField==='drugName'">Drug <span class="sort-icon">{{ sortField==='drugName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('dos')" [class.th-sorted]="sortField==='dos'">DOS <span class="sort-icon">{{ sortField==='dos' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('estimatedDeliveryDate')" [class.th-sorted]="sortField==='estimatedDeliveryDate'">Est. Delivery <span class="sort-icon">{{ sortField==='estimatedDeliveryDate' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('insuranceName')" [class.th-sorted]="sortField==='insuranceName'">Insurance <span class="sort-icon">{{ sortField==='insuranceName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable" (click)="sortBy('currentTaskCode')" [class.th-sorted]="sortField==='currentTaskCode'">Task <span class="sort-icon">{{ sortField==='currentTaskCode' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable text-end" (click)="sortBy('totalUnitsBilled')" [class.th-sorted]="sortField==='totalUnitsBilled'">Units <span class="sort-icon">{{ sortField==='totalUnitsBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable text-end" (click)="sortBy('totalAmountBilled')" [class.th-sorted]="sortField==='totalAmountBilled'">Billed <span class="sort-icon">{{ sortField==='totalAmountBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable text-end" (click)="sortBy('totalPayments')" [class.th-sorted]="sortField==='totalPayments'">Payments <span class="sort-icon">{{ sortField==='totalPayments' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable text-end" (click)="sortBy('totalBalance')" [class.th-sorted]="sortField==='totalBalance'">Balance <span class="sort-icon">{{ sortField==='totalBalance' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                  <th class="th-sortable text-center" (click)="sortBy('isBilled')" [class.th-sorted]="sortField==='isBilled'">Billed? <span class="sort-icon">{{ sortField==='isBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (group of groupedResults; track group.sortKey) {
-                  <tr class="table-group-header" style="cursor:pointer;user-select:none;" (click)="toggleGroup(group.sortKey)">
-                    <td colspan="14" class="fw-bold text-uppercase small px-3 py-2" style="background:var(--oms-sidebar-bg,#1e2a3a);color:#fff;letter-spacing:.06em;">
-                      <span class="me-2" style="display:inline-block;transition:transform .2s;" [style.transform]="isGroupCollapsed(group.sortKey) ? 'rotate(-90deg)' : 'rotate(0deg)'">▼</span>
-                      📅 {{ group.label }} <span class="fw-normal ms-2 opacity-75">({{ group.rows.length }} record{{ group.rows.length !== 1 ? 's' : '' }})</span>
-                    </td>
+        @if (resultsExpanded) {
+          @if (results.length === 0) {
+            <div class="oms-card-body text-center py-5">
+              <div class="display-4 mb-3">🔎</div>
+              <h5 class="text-muted">No records found</h5>
+              <p class="text-muted small">Try adjusting your filters and search again.</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table oms-table mb-0 align-middle">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th class="th-sortable" (click)="sortBy('orderNumber')" [class.th-sorted]="sortField==='orderNumber'">Order # <span class="sort-icon">{{ sortField==='orderNumber' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('patientName')" [class.th-sorted]="sortField==='patientName'">Patient <span class="sort-icon">{{ sortField==='patientName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('mrn')" [class.th-sorted]="sortField==='mrn'">MRN <span class="sort-icon">{{ sortField==='mrn' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('drugName')" [class.th-sorted]="sortField==='drugName'">Drug <span class="sort-icon">{{ sortField==='drugName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('dos')" [class.th-sorted]="sortField==='dos'">DOS <span class="sort-icon">{{ sortField==='dos' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('estimatedDeliveryDate')" [class.th-sorted]="sortField==='estimatedDeliveryDate'">Est. Delivery <span class="sort-icon">{{ sortField==='estimatedDeliveryDate' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('insuranceName')" [class.th-sorted]="sortField==='insuranceName'">Insurance <span class="sort-icon">{{ sortField==='insuranceName' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable" (click)="sortBy('currentTaskCode')" [class.th-sorted]="sortField==='currentTaskCode'">Task <span class="sort-icon">{{ sortField==='currentTaskCode' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable text-end" (click)="sortBy('totalUnitsBilled')" [class.th-sorted]="sortField==='totalUnitsBilled'">Units <span class="sort-icon">{{ sortField==='totalUnitsBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable text-end" (click)="sortBy('totalAmountBilled')" [class.th-sorted]="sortField==='totalAmountBilled'">Billed <span class="sort-icon">{{ sortField==='totalAmountBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable text-end" (click)="sortBy('totalPayments')" [class.th-sorted]="sortField==='totalPayments'">Payments <span class="sort-icon">{{ sortField==='totalPayments' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable text-end" (click)="sortBy('totalBalance')" [class.th-sorted]="sortField==='totalBalance'">Balance <span class="sort-icon">{{ sortField==='totalBalance' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
+                    <th class="th-sortable text-center" (click)="sortBy('isBilled')" [class.th-sorted]="sortField==='isBilled'">Billed? <span class="sort-icon">{{ sortField==='isBilled' ? (sortDir==='asc' ? '▲' : '▼') : '⇅' }}</span></th>
                   </tr>
-                  @if (!isGroupCollapsed(group.sortKey)) {
-                  @for (row of group.rows; track row.orderId; let i = $index) {
-                    <tr>
-                      <td class="text-muted small">{{ i + 1 }}</td>
-                      <td><span class="fw-semibold text-primary">{{ row.orderNumber ?? '—' }}</span></td>
-                      <td class="fw-semibold">{{ row.patientName ?? '—' }}</td>
-                      <td>
-                        @if (row.patientId) {
-                          <a class="mrn-link" href="javascript:void(0)" (click)="openPatientDetail(row.patientId)">{{ row.mrn ?? row.patientId }}</a>
-                        } @else {
-                          <span class="text-muted">{{ row.mrn ?? '\u2014' }}</span>
-                        }
-                      </td>
-                      <td>{{ row.drugName ?? '—' }}</td>
-                      <td class="small text-muted">{{ row.dos ? (row.dos | date:'MM/dd/yyyy') : '—' }}</td>
-                      <td class="small text-muted">{{ row.estimatedDeliveryDate ? (row.estimatedDeliveryDate | date:'MM/dd/yyyy') : '—' }}</td>
-                      <td class="small">{{ row.insuranceName ?? '—' }}</td>
-                      <td>
-                        @if (row.currentTaskCode) {
-                          <span class="badge text-bg-info rounded-pill">{{ taskName(row.currentTaskCode) }}</span>
-                        } @else {
-                          <span class="text-muted">—</span>
-                        }
-                      </td>
-                      <td class="text-end">{{ row.totalUnitsBilled ?? 0 }}</td>
-                      <td class="text-end">{{ row.totalAmountBilled | currency }}</td>
-                      <td class="text-end text-success fw-semibold">{{ row.totalPayments | currency }}</td>
-                      <td class="text-end fw-semibold"
-                          [class.text-danger]="(row.totalBalance ?? 0) > 0"
-                          [class.text-success]="(row.totalBalance ?? 0) <= 0">
-                        {{ row.totalBalance | currency }}
-                      </td>
-                      <td class="text-center">
-                        @if (row.isBilled) {
-                          <span class="badge text-bg-success rounded-pill">✓ Yes</span>
-                        } @else {
-                          <span class="badge text-bg-secondary rounded-pill">No</span>
-                        }
+                </thead>
+                <tbody>
+                  @for (group of groupedResults; track group.sortKey) {
+                    <tr class="table-group-header" style="cursor:pointer;user-select:none;" (click)="toggleGroup(group.sortKey)">
+                      <td colspan="14" class="fw-bold text-uppercase small px-3 py-2" style="background:var(--oms-sidebar-bg,#1e2a3a);color:#fff;letter-spacing:.06em;">
+                        <span class="me-2" style="display:inline-block;transition:transform .2s;" [style.transform]="isGroupCollapsed(group.sortKey) ? 'rotate(-90deg)' : 'rotate(0deg)'">▼</span>
+                        📅 {{ group.label }} <span class="fw-normal ms-2 opacity-75">({{ group.rows.length }} record{{ group.rows.length !== 1 ? 's' : '' }})</span>
                       </td>
                     </tr>
+                    @if (!isGroupCollapsed(group.sortKey)) {
+                      @for (row of group.rows; track row.orderId; let i = $index) {
+                        <tr>
+                          <td class="text-muted small">{{ i + 1 }}</td>
+                          <td><span class="fw-semibold text-primary">{{ row.orderNumber ?? '—' }}</span></td>
+                          <td class="fw-semibold">{{ row.patientName ?? '—' }}</td>
+                          <td>
+                            @if (row.patientId) {
+                              <a class="mrn-link" href="javascript:void(0)" (click)="openPatientDetail(row.patientId)">{{ row.mrn ?? row.patientId }}</a>
+                            } @else {
+                              <span class="text-muted">{{ row.mrn ?? '\u2014' }}</span>
+                            }
+                          </td>
+                          <td>{{ row.drugName ?? '—' }}</td>
+                          <td class="small text-muted">{{ row.dos ? (row.dos | date:'MM/dd/yyyy') : '—' }}</td>
+                          <td class="small text-muted">{{ row.estimatedDeliveryDate ? (row.estimatedDeliveryDate | date:'MM/dd/yyyy') : '—' }}</td>
+                          <td class="small">{{ row.insuranceName ?? '—' }}</td>
+                          <td>
+                            @if (row.currentTaskCode) {
+                              <span class="badge text-bg-info rounded-pill">{{ taskName(row.currentTaskCode) }}</span>
+                            } @else {
+                              <span class="text-muted">—</span>
+                            }
+                          </td>
+                          <td class="text-end">{{ row.totalUnitsBilled ?? 0 }}</td>
+                          <td class="text-end">{{ row.totalAmountBilled | currency }}</td>
+                          <td class="text-end text-success fw-semibold">{{ row.totalPayments | currency }}</td>
+                          <td class="text-end fw-semibold"
+                              [class.text-danger]="(row.totalBalance ?? 0) > 0"
+                              [class.text-success]="(row.totalBalance ?? 0) <= 0">
+                            {{ row.totalBalance | currency }}
+                          </td>
+                          <td class="text-center">
+                            @if (row.isBilled) {
+                              <span class="badge text-bg-success rounded-pill">✓ Yes</span>
+                            } @else {
+                              <span class="badge text-bg-secondary rounded-pill">No</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                      <tr class="table-group-subtotal" style="background:transparent;border-top:3px solid #94a3b8;border-bottom:3px solid #94a3b8;">
+                        <td colspan="10" class="text-end fw-bold py-2 px-3" style="color:#1e293b;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;">
+                          <span style="opacity:.6;margin-right:.4rem;">📊</span>{{ group.label }} — Subtotals
+                        </td>
+                        <td class="text-end fw-bold py-2" style="color:#1e293b;font-size:.9rem;">{{ groupTotalBilled(group.rows) | currency }}</td>
+                        <td class="text-end fw-bold py-2 text-success" style="font-size:.9rem;">{{ groupTotalPayments(group.rows) | currency }}</td>
+                        <td class="text-end fw-bold py-2" style="font-size:.9rem;"
+                            [class.text-danger]="groupTotalBalance(group.rows) > 0"
+                            [class.text-success]="groupTotalBalance(group.rows) <= 0">{{ groupTotalBalance(group.rows) | currency }}</td>
+                        <td></td>
+                      </tr>
+                    } <!-- end @if !collapsed -->
                   }
-                  <tr class="table-group-subtotal" style="background:transparent;border-top:3px solid #94a3b8;border-bottom:3px solid #94a3b8;">
-                    <td colspan="10" class="text-end fw-bold py-2 px-3" style="color:#1e293b;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;">
-                      <span style="opacity:.6;margin-right:.4rem;">📊</span>{{ group.label }} — Subtotals
-                    </td>
-                    <td class="text-end fw-bold py-2" style="color:#1e293b;font-size:.9rem;">{{ groupTotalBilled(group.rows) | currency }}</td>
-                    <td class="text-end fw-bold py-2 text-success" style="font-size:.9rem;">{{ groupTotalPayments(group.rows) | currency }}</td>
-                    <td class="text-end fw-bold py-2" style="font-size:.9rem;"
-                        [class.text-danger]="groupTotalBalance(group.rows) > 0"
-                        [class.text-success]="groupTotalBalance(group.rows) <= 0">{{ groupTotalBalance(group.rows) | currency }}</td>
+                </tbody>
+                <tfoot>
+                  <tr class="table-totals-row">
+                    <td colspan="10" class="text-end fw-bold text-muted">Totals</td>
+                    <td class="text-end fw-bold">{{ totalAmountBilled | currency }}</td>
+                    <td class="text-end fw-bold text-success">{{ totalPayments | currency }}</td>
+                    <td class="text-end fw-bold" [class.text-danger]="totalBalance > 0" [class.text-success]="totalBalance <= 0">{{ totalBalance | currency }}</td>
                     <td></td>
                   </tr>
-                  } <!-- end @if !collapsed -->
-                }
-              </tbody>
-              <tfoot>
-                <tr class="table-totals-row">
-                  <td colspan="10" class="text-end fw-bold text-muted">Totals</td>
-                  <td class="text-end fw-bold">{{ totalAmountBilled | currency }}</td>
-                  <td class="text-end fw-bold text-success">{{ totalPayments | currency }}</td>
-                  <td class="text-end fw-bold" [class.text-danger]="totalBalance > 0" [class.text-success]="totalBalance <= 0">{{ totalBalance | currency }}</td>
-                  <td></td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        }
+                </tfoot>
+              </table>
+            </div>
+          }
+        } <!-- end @if resultsExpanded -->
       </div>
-    }
+    } <!-- end @if submitted -->
 
   </main>
 

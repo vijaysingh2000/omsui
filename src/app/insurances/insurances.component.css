@@ -4,7 +4,7 @@
   display: flex;
   min-height: 100vh;
   background: #f0f2f5;
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
 .oms-main {
@@ -37,11 +37,15 @@
 
 .oms-card-body { padding: 20px; }
 
+.list-table {
+  font-size: 0.8rem;
+}
+
 .list-table thead th {
   background: #f0f2f5;
   color: #1a237e;
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-bottom: 2px solid #dee2e6;

@@ -337,6 +337,11 @@ export class ReportComponent implements OnInit {
   ];
 
   availableReports: BaseModel[] = [];
+  filterExpanded  = true;
+  resultsExpanded = true;
+
+  toggleFilter():  void { this.filterExpanded  = !this.filterExpanded;  this.cdr.detectChanges(); }
+  toggleResults(): void { this.resultsExpanded = !this.resultsExpanded; this.cdr.detectChanges(); }
   reportsLoading = false;
 
   /** Dropdown items: from API if it returned named items, otherwise hardcoded reports. */

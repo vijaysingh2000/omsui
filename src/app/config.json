@@ -1,4 +1,4 @@
 {
-  "apiBaseUrl": "https://omsservice-awcvg4e4cgctaadp.canadacentral-01.azurewebsites.net",
-  "apiBaseUrl1": "https://localhost:7113"
+  "apiBaseUrl1": "https://omsservice-awcvg4e4cgctaadp.canadacentral-01.azurewebsites.net",
+  "apiBaseUrl": "https://localhost:7113"
 }

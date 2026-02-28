@@ -1,5 +1,6 @@
 // Barrel re-export — import individual services from here or directly from their files.
 export * from './models';
+export * from './auth.service';
 export * from './batch-invoice.service';
 export * from './batch-payment.service';
 export * from './client.service';

@@ -11,9 +11,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { UsersService } from '../../services/users.service';
-import { User } from '../../services/models';
-import { E_UserAccess } from '../../services/enum';
+import { ClientService } from '../../services/client.service';
+import { StaticListService } from '../../services/static-list.service';
+import { User, ClientModel, BaseModel } from '../../services/models';
+import { E_UserAccess, E_ListName } from '../../services/enum';
 
 @Component({
   selector: 'app-user-detail',
@@ -33,36 +37,57 @@ export class UserDetailComponent implements OnInit {
   errorMsg: string | null = null;
   successMsg: string | null = null;
 
-  get isNew(): boolean { return this.userId == null; }
+  clients: ClientModel[] = [];
+  userTypeOptions: BaseModel[] = [];
 
-  readonly userTypeOptions = [
-    { value: E_UserAccess.FullAccess,    label: 'Full Access' },
-    { value: E_UserAccess.LimitedAccess, label: 'Limited Access' },
-    { value: E_UserAccess.NoAccess,      label: 'No Access' },
-  ];
+  get isNew(): boolean { return this.userId == null; }
 
   constructor(
     private usersService: UsersService,
+    private clientService: ClientService,
+    private staticListService: StaticListService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
-    if (this.isNew) {
-      this.user = { isActive: true, type: E_UserAccess.LimitedAccess };
-    } else {
-      this.loadUser();
-    }
-  }
-
-  loadUser(): void {
     this.loading = true;
-    this.errorMsg = null;
-    this.usersService.getById({ id: this.userId! })
+    const user$ = this.isNew
+      ? of<User>({ isActive: true, type: E_UserAccess.LimitedAccess, clientIds: [] })
+      : this.usersService.getById({ id: this.userId! }).pipe(catchError(() => of<User>({})));
+
+    forkJoin({
+      user: user$,
+      clients: this.clientService.getAll().pipe(catchError(() => of<ClientModel[]>([]))),
+      userTypes: this.staticListService.getActive({ listName: E_ListName.UserTypes }).pipe(catchError(() => of<BaseModel[]>([]))),
+    })
       .pipe(finalize(() => { this.loading = false; this.cdr.markForCheck(); }))
       .subscribe({
-        next: (data) => { this.user = data ?? {}; this.cdr.markForCheck(); },
-        error: (err) => { this.errorMsg = err?.message ?? 'Failed to load user.'; this.cdr.markForCheck(); },
+        next: ({ user, clients, userTypes }) => {
+          this.user = user ?? {};
+          this.user.clientIds = (this.user.clientIds ?? []).map(Number).filter(id => id > 0);
+          this.clients = clients;
+          this.userTypeOptions = userTypes;
+          this.cdr.markForCheck();
+        },
+        error: (err) => { this.errorMsg = err?.message ?? 'Failed to load data.'; this.cdr.markForCheck(); },
       });
+  }
+
+  isClientSelected(clientId: number): boolean {
+    return (this.user?.clientIds ?? []).map(Number).includes(Number(clientId));
+  }
+
+  toggleClient(clientId: number): void {
+    if (!this.user) return;
+    if (!this.user.clientIds) this.user.clientIds = [];
+    const id = Number(clientId);
+    const idx = this.user.clientIds.map(Number).indexOf(id);
+    if (idx === -1) {
+      this.user.clientIds = [...this.user.clientIds, id];
+    } else {
+      this.user.clientIds = this.user.clientIds.filter(c => Number(c) !== id);
+    }
+    this.cdr.markForCheck();
   }
 
   save(): void {

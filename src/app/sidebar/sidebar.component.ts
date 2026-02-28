@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
 import { SessionService } from '../services/session.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,6 +23,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private session: SessionService,
     private router: Router,
     private cdr: ChangeDetectorRef,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -41,7 +43,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    this.session.clearSession();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

@@ -77,8 +77,9 @@
             <div class="col-md-6">
               <label class="form-label">Access Type</label>
               <select class="form-select form-select-sm" name="type" [(ngModel)]="user.type">
-                @for (opt of userTypeOptions; track opt.value) {
-                  <option [ngValue]="opt.value">{{ opt.label }}</option>
+                <option [ngValue]="undefined" disabled>— Select type —</option>
+                @for (opt of userTypeOptions; track opt.id) {
+                  <option [ngValue]="opt.id">{{ opt.name }}</option>
                 }
               </select>
             </div>
@@ -100,6 +101,29 @@
             }
 
           </div>
+        </div>
+
+        <!-- Section: Clients -->
+        <div class="form-section">
+          <div class="section-title">🏢 Assigned Clients</div>
+          @if (clients.length === 0) {
+            <p class="text-muted small mb-0">No clients available.</p>
+          } @else {
+            <div class="client-picker">
+              @for (client of clients; track client.id) {
+                <label class="client-chip" [class.selected]="isClientSelected(client.id!)">
+                  <input type="checkbox" class="visually-hidden"
+                         [checked]="isClientSelected(client.id!)"
+                         (change)="toggleClient(client.id!)" />
+                  <span class="chip-check">{{ isClientSelected(client.id!) ? '✓' : '' }}</span>
+                  {{ client.name }}
+                </label>
+              }
+            </div>
+            <div class="mt-2 small text-muted">
+              {{ (user?.clientIds?.length ?? 0) }} client(s) selected
+            </div>
+          }
         </div>
 
         <!-- Footer -->

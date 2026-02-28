@@ -9,8 +9,9 @@ import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 
 import { UsersService } from '../services/users.service';
-import { User } from '../services/models';
-import { E_UserAccess } from '../services/enum';
+import { User, BaseModel } from '../services/models';
+import { E_ListName } from '../services/enum';
+import { StaticListService } from '../services/static-list.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { UserDetailComponent } from './user-detail/user-detail.component';
 
@@ -30,18 +31,24 @@ export class UsersComponent implements OnInit {
   selectedUserId: number | null = null;
   showDetail = false;
 
-  readonly userTypeMap: Record<number, string> = {
-    [E_UserAccess.FullAccess]:    'Full Access',
-    [E_UserAccess.LimitedAccess]: 'Limited Access',
-    [E_UserAccess.NoAccess]:      'No Access',
-  };
+  userTypeMap: Record<number, string> = {};
 
   constructor(
     private usersService: UsersService,
+    private staticListService: StaticListService,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.staticListService.getActive({ listName: E_ListName.UserTypes })
+      .subscribe({
+        next: (items: BaseModel[]) => {
+          this.userTypeMap = Object.fromEntries((items ?? []).filter(i => i.id != null).map(i => [i.id!, i.name ?? String(i.id)]));
+          this.cdr.markForCheck();
+        },
+      });
+    this.load();
+  }
 
   load(): void {
     this.loading = true;

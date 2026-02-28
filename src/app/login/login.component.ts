@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { UsersService } from '../services/api.service';
-import { SessionService } from '../services/session.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,24 +13,21 @@ export class LoginComponent {
   username = '';
   password = '';
   errorMessage = '';
+  loading = false;
 
-  constructor(private usersService: UsersService, private router: Router, private sessionService: SessionService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(): void {
     this.errorMessage = '';
-    this.usersService.getByLoginId({ loginId: this.username }).subscribe({
-      next: user => {
-        if (user && user.password === this.password) {
-          this.sessionService.setUserId(user.id);
-          this.sessionService.setUserType(user.type);
-          this.sessionService.setClientId(user.clientIds?.[0]);
-          this.router.navigate(['/dashboard']);
-        } else {
-          this.errorMessage = 'Invalid username or password.';
-        }
+    this.loading = true;
+    this.authService.login({ loginId: this.username, password: this.password }).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/dashboard']);
       },
       error: () => {
-        this.errorMessage = 'Login failed. Please try again.';
+        this.loading = false;
+        this.errorMessage = 'Invalid username or password.';
       }
     });
   }

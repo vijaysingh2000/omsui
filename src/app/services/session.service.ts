@@ -63,11 +63,11 @@ export class SessionService {
   }
 
   /**
-   * Merges clientId, userId, and userType from the current session into the provided request object.
-   * Use this in every service method before sending an HTTP request.
+   * Merges clientId from the current session into the provided request object.
+   * userId and userType are now conveyed via the JWT Bearer token.
    */
-  withSession<T extends object>(request: T): T & { clientId?: number; userId?: number; userType?: number } {
-    return { ...request, clientId: this._clientId$.value, userId: this._userId$.value, userType: this._userType$.value };
+  withSession<T extends object>(request: T): T & { clientId?: number } {
+    return { ...request, clientId: this._clientId$.value };
   }
 
   clearSession(): void {

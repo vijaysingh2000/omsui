@@ -9,7 +9,8 @@ import { ReportService } from '../services/report.service';
 import { MiscService } from '../services/misc.service';
 import { SessionService } from '../services/session.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { BaseModel, E_DashboardView, E_UserAccess, Report_Request } from '../services/models';
+import { BaseModel, E_DashboardView, Report_Request } from '../services/models';
+import { AuthService } from '../services/auth.service';
 
 export interface ReportColumn {
   header: string;
@@ -23,7 +24,6 @@ export interface ReportDefinition {
   serviceKey: string;
   columns: ReportColumn[];
   type?: number;
-  userAccess?: E_UserAccess;
   dashboardView?: E_DashboardView;
 }
 
@@ -317,7 +317,6 @@ export class ReportComponent implements OnInit {
       key: 'AllOrders',
       label: 'All Orders',
       serviceKey: 'ordersInProgress',
-      userAccess: E_UserAccess.FullAccess,
       dashboardView: E_DashboardView.ALL,
       columns: [
         { header: 'Order #',       field: 'orderNumber' },
@@ -425,6 +424,7 @@ export class ReportComponent implements OnInit {
     private currencyPipe: CurrencyPipe,
     private datePipe: DatePipe,
     private router: Router,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -468,7 +468,6 @@ export class ReportComponent implements OnInit {
       id:            null,
       guid:          null,
       type:          def.type,
-      userAccess:    def.userAccess,
       dashboardView: def.dashboardView,
       orderAge:      undefined,
     };
@@ -558,7 +557,7 @@ export class ReportComponent implements OnInit {
   }
 
   logout(): void {
-    this.session.clearSession();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

@@ -9,7 +9,8 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { StaticListService } from '../services/static-list.service';
 import { ClientService } from '../services/client.service';
 import { User, BaseModel, ClientModel } from '../services/models';
-import { E_ListName } from '../services/enum';
+import { E_ListName, E_UserAccess } from '../services/enum';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -44,6 +45,10 @@ export class MyProfileComponent implements OnInit {
     return found?.name ?? (this.userType != null ? String(this.userType) : '—');
   }
 
+  get isAdmin(): boolean {
+    return this.session.userType === E_UserAccess.FullAccess;
+  }
+
   get assignedClients(): ClientModel[] {
     return this.clients.filter(c => c.id != null && this.clientIds.includes(c.id));
   }
@@ -59,6 +64,7 @@ export class MyProfileComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private staticListService: StaticListService,
     private clientService: ClientService,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -139,7 +145,7 @@ export class MyProfileComponent implements OnInit {
   }
 
   logout(): void {
-    this.session.clearSession();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

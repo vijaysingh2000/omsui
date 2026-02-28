@@ -89,8 +89,17 @@
 
                 <div class="profile-field">
                   <label class="profile-label">User Type</label>
-                  <input type="text" class="form-control form-control-sm profile-input"
-                         [value]="userTypeName" readonly />
+                  @if (isAdmin) {
+                    <select class="form-select form-select-sm profile-input" name="userType" [(ngModel)]="userType">
+                      <option [ngValue]="undefined" disabled>— Select type —</option>
+                      @for (opt of userTypeOptions; track opt.id) {
+                        <option [ngValue]="opt.id">{{ opt.name }}</option>
+                      }
+                    </select>
+                  } @else {
+                    <input type="text" class="form-control form-control-sm profile-input"
+                           [value]="userTypeName" readonly />
+                  }
                 </div>
 
                 <div class="profile-field">

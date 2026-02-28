@@ -13,6 +13,7 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 import { PatientDetailComponent } from '../patients/patient-detail/patient-detail.component';
 import { ClientModel, OrderInProgress, Report_Request, Tasks } from '../services/models';
 import { E_DashboardView } from '../services/enum';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -109,7 +110,6 @@ export class DashboardComponent implements OnInit {
       dashboardView: this.selectedDashboardView,
       id: null,
       guid: null,
-      userAccess: undefined,
       orderAge: undefined,
       type: undefined,
     };
@@ -272,6 +272,7 @@ export class DashboardComponent implements OnInit {
     private session: SessionService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -330,7 +331,7 @@ export class DashboardComponent implements OnInit {
   }
 
   logout(): void {
-    this.session.clearSession();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 

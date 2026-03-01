@@ -157,6 +157,12 @@
   gap: 0.4rem;
 }
 
+.login-error--warn {
+  background: #fff8e1;
+  border-color: #ffe082;
+  color: #e65100;
+}
+
 /* ── Submit button ──────────────────────────────────────────────── */
 .login-btn {
   width: 100%;

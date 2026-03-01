@@ -5,10 +5,15 @@
     <span class="toggle-icon">{{ collapsed ? '&#x276F;' : '&#x276E;' }}</span>
   </button>
 
-  <!-- Brand -->
-  <div class="sidebar-brand">
-    <span class="brand-icon">&#x2695;</span>
-    <span class="brand-text">OMS</span>
+  <!-- User Card -->
+  <div class="sidebar-user">
+    <div class="user-avatar" [title]="userName">{{ userInitials }}</div>
+    <div class="user-info">
+      <div class="user-name">{{ userName }}</div>
+      @if (userTypeName) {
+        <div class="user-type">{{ userTypeName }}</div>
+      }
+    </div>
   </div>
 
   <!-- Nav -->

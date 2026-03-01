@@ -35,6 +35,12 @@
           </div>
         </div>
 
+        @if (sessionExpired) {
+          <div class="login-error login-error--warn">
+            <span>&#x23F1;</span> Your session has expired. Please sign in again.
+          </div>
+        }
+
         @if (errorMessage) {
           <div class="login-error">
             <span>&#x26A0;</span> {{ errorMessage }}

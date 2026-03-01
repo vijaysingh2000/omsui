@@ -66,8 +66,24 @@ export class AuthService {
     return sessionStorage.getItem(TOKEN_KEY);
   }
 
-  /** Returns true if a token is present in sessionStorage. */
+  /**
+   * Decodes the JWT payload and checks whether the `exp` claim has passed.
+   * Returns true if the token is missing or expired.
+   */
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // `exp` is in seconds (Unix epoch)
+      return payload.exp != null && Date.now() / 1000 > payload.exp;
+    } catch {
+      return true;
+    }
+  }
+
+  /** Returns true if a token is present and has not expired. */
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !this.isTokenExpired();
   }
 }

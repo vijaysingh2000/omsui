@@ -11,23 +11,24 @@ import { InsurancesComponent } from './insurances/insurances.component';
 import { ManufacturerComponent } from './manufacturer/manufacturer.component';
 import { ProvidersComponent } from './providers/providers.component';
 import { UsersComponent } from './users/users.component';
+import { authGuard } from './services/auth.guard';
 
 export const routes: Routes = [
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 	{ path: 'login', component: LoginComponent },
-	{ path: 'dashboard', component: DashboardComponent },
-	{ path: 'reports', component: ReportComponent },
-	{ path: 'my-profile', component: MyProfileComponent },
-	{ path: 'patients', component: PatientsComponent },
-	{ path: 'call-list', component: PlaceholderComponent },
-	{ path: 'list', component: PlaceholderComponent },
-	{ path: 'batch-payment', component: PlaceholderComponent },
-	{ path: 'invoices', component: PlaceholderComponent },
-	{ path: 'users', component: UsersComponent },
-	{ path: 'clients', component: ClientsComponent },
-	{ path: 'drugs', component: DrugsComponent },
-	{ path: 'insurances', component: InsurancesComponent },
-	{ path: 'manufacturer', component: ManufacturerComponent },
-	{ path: 'providers', component: ProvidersComponent },
+	{ path: 'dashboard',    component: DashboardComponent,  canActivate: [authGuard] },
+	{ path: 'reports',      component: ReportComponent,     canActivate: [authGuard] },
+	{ path: 'my-profile',   component: MyProfileComponent,  canActivate: [authGuard] },
+	{ path: 'patients',     component: PatientsComponent,   canActivate: [authGuard] },
+	{ path: 'call-list',    component: PlaceholderComponent, canActivate: [authGuard] },
+	{ path: 'list',         component: PlaceholderComponent, canActivate: [authGuard] },
+	{ path: 'batch-payment', component: PlaceholderComponent, canActivate: [authGuard] },
+	{ path: 'invoices',     component: PlaceholderComponent, canActivate: [authGuard] },
+	{ path: 'users',        component: UsersComponent,      canActivate: [authGuard] },
+	{ path: 'clients',      component: ClientsComponent,    canActivate: [authGuard] },
+	{ path: 'drugs',        component: DrugsComponent,      canActivate: [authGuard] },
+	{ path: 'insurances',   component: InsurancesComponent, canActivate: [authGuard] },
+	{ path: 'manufacturer', component: ManufacturerComponent, canActivate: [authGuard] },
+	{ path: 'providers',    component: ProvidersComponent,  canActivate: [authGuard] },
 	{ path: '**', redirectTo: 'login' }
 ];

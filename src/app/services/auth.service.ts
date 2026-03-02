@@ -37,6 +37,7 @@ export class AuthService {
           this.session.setUserId(response.user.id);
           this.session.setUserType(response.user.type);
           this.session.setClientId(response.user.clientIds?.[0]);
+          this.session.setUser(response.user);
         }
       })
     );

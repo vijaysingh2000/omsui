@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { User } from './models';
 
-const SESSION_KEY_CLIENT_ID = 'oms_clientId';
-const SESSION_KEY_USER_ID = 'oms_userId';
-const SESSION_KEY_USER_TYPE = 'oms_userType';
+const SESSION_KEY_CLIENT_ID     = 'oms_clientId';
+const SESSION_KEY_USER_ID       = 'oms_userId';
+const SESSION_KEY_USER_TYPE     = 'oms_userType';
+const SESSION_KEY_USER          = 'oms_user';
+const SESSION_KEY_USER_TYPE_NAME = 'oms_userTypeName';
 
 @Injectable({ providedIn: 'root' })
 export class SessionService {
@@ -62,6 +65,28 @@ export class SessionService {
     this._userType$.next(type);
   }
 
+  /** Persists the full user object to sessionStorage. */
+  setUser(user: User): void {
+    sessionStorage.setItem(SESSION_KEY_USER, JSON.stringify(user));
+  }
+
+  /** Retrieves the cached user object, or null if not present. */
+  getUser(): User | null {
+    const raw = sessionStorage.getItem(SESSION_KEY_USER);
+    if (!raw) return null;
+    try { return JSON.parse(raw) as User; } catch { return null; }
+  }
+
+  /** Persists the resolved user type name (e.g. "Full Access"). */
+  setUserTypeName(name: string): void {
+    sessionStorage.setItem(SESSION_KEY_USER_TYPE_NAME, name);
+  }
+
+  /** Retrieves the cached user type name, or null if not present. */
+  getUserTypeName(): string | null {
+    return sessionStorage.getItem(SESSION_KEY_USER_TYPE_NAME);
+  }
+
   /**
    * Merges clientId from the current session into the provided request object.
    * userId and userType are now conveyed via the JWT Bearer token.
@@ -74,6 +99,8 @@ export class SessionService {
     sessionStorage.removeItem(SESSION_KEY_CLIENT_ID);
     sessionStorage.removeItem(SESSION_KEY_USER_ID);
     sessionStorage.removeItem(SESSION_KEY_USER_TYPE);
+    sessionStorage.removeItem(SESSION_KEY_USER);
+    sessionStorage.removeItem(SESSION_KEY_USER_TYPE_NAME);
     this._clientId$.next(undefined);
     this._userId$.next(undefined);
     this._userType$.next(undefined);

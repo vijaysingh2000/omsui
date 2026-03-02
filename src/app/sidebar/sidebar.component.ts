@@ -6,7 +6,6 @@ import { catchError, of } from 'rxjs';
 import { SidebarService } from '../services/sidebar.service';
 import { SessionService } from '../services/session.service';
 import { AuthService } from '../services/auth.service';
-import { UsersService } from '../services/users.service';
 import { StaticListService } from '../services/static-list.service';
 import { E_ListName } from '../services/enum';
 
@@ -32,7 +31,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private usersService: UsersService,
     private staticListService: StaticListService,
   ) {}
 
@@ -46,28 +44,31 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private loadUser(): void {
-    const uid = this.session.userId;
-    if (!uid) return;
-    this.usersService.getById({ id: uid })
-      .pipe(catchError(() => of(null)))
-      .subscribe(user => {
-        if (!user) return;
-        const first = user.firstName ?? '';
-        const last  = user.lastName  ?? '';
-        this.userName    = [first, last].filter(Boolean).join(' ') || user.loginId || 'User';
-        this.userInitials = ((first[0] ?? '') + (last[0] ?? '')).toUpperCase() || (user.loginId?.[0]?.toUpperCase() ?? '?');
-        const typeId = user.type;
-        if (typeId != null) {
-          this.staticListService.getActive({ listName: E_ListName.UserTypes })
-            .pipe(catchError(() => of([])))
-            .subscribe(types => {
-              const match = types.find((t: any) => t.id === typeId);
-              this.userTypeName = match?.name ?? '';
-              this.cdr.detectChanges();
-            });
-        }
-        this.cdr.detectChanges();
-      });
+    const user = this.session.getUser();
+    if (!user) return;
+
+    const first = user.firstName ?? '';
+    const last  = user.lastName  ?? '';
+    this.userName     = [first, last].filter(Boolean).join(' ') || user.loginId || 'User';
+    this.userInitials = ((first[0] ?? '') + (last[0] ?? '')).toUpperCase() || (user.loginId?.[0]?.toUpperCase() ?? '?');
+
+    // Use cached type name if available, otherwise resolve once and cache it
+    const cached = this.session.getUserTypeName();
+    if (cached) {
+      this.userTypeName = cached;
+      this.cdr.detectChanges();
+    } else if (user.type != null) {
+      this.staticListService.getActive({ listName: E_ListName.UserTypes })
+        .pipe(catchError(() => of([])))
+        .subscribe(types => {
+          const match = types.find((t: any) => t.id === user.type);
+          this.userTypeName = match?.name ?? '';
+          if (this.userTypeName) this.session.setUserTypeName(this.userTypeName);
+          this.cdr.detectChanges();
+        });
+    } else {
+      this.cdr.detectChanges();
+    }
   }
 
   ngOnDestroy(): void {
